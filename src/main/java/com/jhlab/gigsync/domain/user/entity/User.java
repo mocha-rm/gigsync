@@ -4,6 +4,7 @@ import com.jhlab.gigsync.domain.user.type.UserRole;
 import com.jhlab.gigsync.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,4 +27,12 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @Builder
+    public User(String email, String password, String nickName) {
+        this.email = email;
+        this.password = password;
+        this.nickName = nickName;
+        this.role = UserRole.NORMAL;
+    }
 }
