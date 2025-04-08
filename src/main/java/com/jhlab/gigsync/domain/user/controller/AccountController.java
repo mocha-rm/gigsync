@@ -21,4 +21,15 @@ public class AccountController {
     public ResponseEntity<UserResponseDto> signUp(@RequestBody UserRequestDto userRequestDto) {
         return new ResponseEntity<>(userService.createUser(userRequestDto), HttpStatus.CREATED);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserResponseDto> login(@RequestBody UserRequestDto userRequestDto) {
+        return new ResponseEntity<>(userService.login(userRequestDto), HttpStatus.OK);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        userService.logout();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

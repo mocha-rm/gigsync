@@ -5,4 +5,8 @@ import com.jhlab.gigsync.domain.user.dto.UserResponseDto;
 
 public interface UserService {
     UserResponseDto createUser(UserRequestDto userRequestDto);
+
+    UserResponseDto login(UserRequestDto userRequestDto);
+
+    void logout();
 }
