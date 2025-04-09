@@ -4,21 +4,31 @@ import com.jhlab.gigsync.domain.user.dto.UserRequestDto;
 import com.jhlab.gigsync.domain.user.dto.UserResponseDto;
 import com.jhlab.gigsync.domain.user.entity.User;
 import com.jhlab.gigsync.domain.user.repository.UserRepository;
+import com.jhlab.gigsync.global.security.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
+        if (userRepository.findByEmail(userRequestDto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
+        }
+
         User user = User.builder()
                 .email(userRequestDto.getEmail())
-                .password(userRequestDto.getPassword())
+                .password(passwordEncoder.encode(userRequestDto.getPassword()))
                 .nickName(userRequestDto.getNickName())
                 .build();
 
@@ -32,11 +42,13 @@ public class UserServiceImpl implements UserService {
         User findUser = userRepository.findByEmail(userRequestDto.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (!findUser.getPassword().equals(userRequestDto.getPassword())) {
+        if (!passwordEncoder.matches(userRequestDto.getPassword(), findUser.getPassword())) {
             throw new IllegalArgumentException("Password Not Match");
         }
 
-        // 세션 로그인 or JWT
+        String accessToken = jwtUtil.generateAccessToken(findUser);
+        log.info(accessToken);
+
         return UserResponseDto.toDto(findUser);
     }
 
