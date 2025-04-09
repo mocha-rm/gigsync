@@ -1,6 +1,6 @@
 spring:
   application:
-    name: football_project
+    name: gigsync
   jpa:
     properties:
       hibernate:
@@ -18,3 +18,7 @@ spring:
 server:
   error:
     include-message: always
+
+jwt:
+  expiration_time: ${JWT_EXP}
+  secret: ${JWT_SECRET}
