@@ -3,6 +3,7 @@ package com.jhlab.gigsync.domain.user.service;
 import com.jhlab.gigsync.domain.user.dto.UserJwtResponseDto;
 import com.jhlab.gigsync.domain.user.dto.UserRequestDto;
 import com.jhlab.gigsync.domain.user.dto.UserResponseDto;
+import com.jhlab.gigsync.domain.user.dto.UserUpdateRequestDto;
 import com.jhlab.gigsync.domain.user.entity.User;
 import com.jhlab.gigsync.domain.user.repository.UserRepository;
 import com.jhlab.gigsync.global.exception.CustomException;
@@ -17,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -28,6 +30,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
         if (userRepository.findByEmail(userRequestDto.getEmail()).isPresent()) {
             throw new CustomException(UserErrorCode.EMAIL_DUPLICATED);
@@ -46,8 +49,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserJwtResponseDto login(UserRequestDto userRequestDto) {
-        User findUser = userRepository.findByEmail(userRequestDto.getEmail())
-                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+        User findUser = getUserFromDB(userRequestDto.getEmail());
 
         if (!passwordEncoder.matches(userRequestDto.getPassword(), findUser.getPassword())) {
             throw new CustomException(UserErrorCode.PASSWORD_MISMATCH);
@@ -85,8 +87,51 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public void updateNickname(UserUpdateRequestDto requestDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = getUserFromDB(authentication.getName());
+
+        user.updateNickname(requestDto.getNickName());
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void updatePassword(UserUpdateRequestDto requestDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = getUserFromDB(authentication.getName());
+
+        if (!passwordEncoder.matches(requestDto.getCurrentPassword(), user.getPassword())) {
+            throw new CustomException(UserErrorCode.PASSWORD_MISMATCH);
+        } else if (requestDto.getCurrentPassword().equals(requestDto.getNewPassword())) {
+            throw new CustomException(UserErrorCode.PASSWORD_BAD_REQUEST_SAME_AS_BEFORE);
+        } else if (!requestDto.getNewPassword().equals(requestDto.getConfirmPassword())) {
+            throw new CustomException(UserErrorCode.PASSWORD_BAD_REQUEST_CONFIRM_AGAIN);
+        }
+
+        user.updatePassword(passwordEncoder.encode(requestDto.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = getUserFromDB(authentication.getName());
+
+        userRepository.delete(user);
+    }
+
+    @Override
     public User getUserFromDB(Long userId) {
         return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    @Override
+    public User getUserFromDB(String email) {
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
     }
 }
