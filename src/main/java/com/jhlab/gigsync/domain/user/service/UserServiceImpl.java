@@ -1,5 +1,6 @@
 package com.jhlab.gigsync.domain.user.service;
 
+import com.jhlab.gigsync.domain.user.dto.UserJwtResponseDto;
 import com.jhlab.gigsync.domain.user.dto.UserRequestDto;
 import com.jhlab.gigsync.domain.user.dto.UserResponseDto;
 import com.jhlab.gigsync.domain.user.entity.User;
@@ -7,6 +8,7 @@ import com.jhlab.gigsync.domain.user.repository.UserRepository;
 import com.jhlab.gigsync.global.exception.CustomException;
 import com.jhlab.gigsync.global.exception.type.UserErrorCode;
 import com.jhlab.gigsync.global.security.utils.JwtUtil;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,7 +45,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto login(UserRequestDto userRequestDto) {
+    public UserJwtResponseDto login(UserRequestDto userRequestDto) {
         User findUser = userRepository.findByEmail(userRequestDto.getEmail())
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
@@ -60,14 +62,31 @@ public class UserServiceImpl implements UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = jwtUtil.generateAccessToken(findUser);
-        log.info(accessToken);
-        log.info(SecurityContextHolder.getContext().getAuthentication().getName());
+        Claims claims = jwtUtil.parseClaims(accessToken);
 
-        return UserResponseDto.toDto(findUser);
+        return UserJwtResponseDto.builder()
+                .id(findUser.getId())
+                .email(findUser.getEmail())
+                .role(findUser.getRole().toString())
+                .accessToken(accessToken)
+                .exp(claims.getExpiration())
+                .build();
     }
 
     @Override
     public void logout() {
         // JWT 구현 시 로그아웃 처리는 어떻게? Redis, Refresh Token, Black List
+    }
+
+    @Override
+    public UserResponseDto findUser(Long userId) {
+        User user = getUserFromDB(userId);
+        return UserResponseDto.toDto(user);
+    }
+
+    @Override
+    public User getUserFromDB(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
     }
 }

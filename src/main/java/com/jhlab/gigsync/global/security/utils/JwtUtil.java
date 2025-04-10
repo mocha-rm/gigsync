@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
@@ -49,7 +50,7 @@ public class JwtUtil {
         claims.put("role", user.getRole());
 
         ZonedDateTime now = ZonedDateTime.now();
-        ZonedDateTime tokenExpiredTime = now.plusSeconds(expireTime);
+        ZonedDateTime tokenExpiredTime = now.plus(Duration.ofMillis(expireTime));
 
         return Jwts.builder()
                 .setClaims(claims)

@@ -1,5 +1,6 @@
 package com.jhlab.gigsync.domain.user.controller;
 
+import com.jhlab.gigsync.domain.user.dto.UserJwtResponseDto;
 import com.jhlab.gigsync.domain.user.dto.UserRequestDto;
 import com.jhlab.gigsync.domain.user.dto.UserResponseDto;
 import com.jhlab.gigsync.domain.user.service.UserService;
@@ -23,7 +24,7 @@ public class AccountController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponseDto> login(@RequestBody UserRequestDto userRequestDto) {
+    public ResponseEntity<UserJwtResponseDto> login(@RequestBody UserRequestDto userRequestDto) {
         return new ResponseEntity<>(userService.login(userRequestDto), HttpStatus.OK);
     }
 
