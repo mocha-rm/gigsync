@@ -35,4 +35,12 @@ public class User extends BaseEntity {
         this.nickName = nickName;
         this.role = UserRole.NORMAL;
     }
+
+    public void updateNickname(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }
