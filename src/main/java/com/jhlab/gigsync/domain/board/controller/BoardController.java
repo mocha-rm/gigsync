@@ -4,6 +4,7 @@ import com.jhlab.gigsync.domain.board.dto.BoardRequestDto;
 import com.jhlab.gigsync.domain.board.dto.BoardResponseDto;
 import com.jhlab.gigsync.domain.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,6 @@ public class BoardController {
     @PostMapping
     public ResponseEntity<BoardResponseDto> createBoard(@RequestPart("board") BoardRequestDto requestDto,
                                                         @RequestPart("files") List<MultipartFile> files) {
-        return null;
+        return new ResponseEntity<>(boardService.createBoard(requestDto, files), HttpStatus.CREATED);
     }
 }
