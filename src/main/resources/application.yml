@@ -1,6 +1,10 @@
 spring:
   application:
     name: gigsync
+  servlet:
+    multipart:
+      max-request-size: 500MB
+      max-file-size: 500MB
   jpa:
     properties:
       hibernate:
@@ -18,7 +22,21 @@ spring:
 server:
   error:
     include-message: always
+  tomcat:
+    max-http-post-size: 500MB
 
 jwt:
   expiration_time: ${JWT_EXP}
   secret: ${JWT_SECRET}
+
+cloud:
+  aws:
+    credentials:
+      accessKey: ${AWS_ACCESS}
+      secretKey: ${AWS_SECRET}
+    s3:
+      bucketName: ${S3_BUCKET}
+    region:
+      static: ${S3_REGION}
+    stack:
+      auto: 'false'

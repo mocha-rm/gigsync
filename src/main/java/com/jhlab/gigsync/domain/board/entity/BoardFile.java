@@ -3,6 +3,7 @@ package com.jhlab.gigsync.domain.board.entity;
 import com.jhlab.gigsync.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,4 +22,11 @@ public class BoardFile extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "board_id")
     private Board board;
+
+    @Builder
+    public BoardFile(String fileName, String fileUrl, Board board) {
+        this.fileName = fileName;
+        this.fileUrl = fileUrl;
+        this.board = board;
+    }
 }

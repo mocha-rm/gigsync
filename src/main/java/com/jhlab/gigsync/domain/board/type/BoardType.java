@@ -1,6 +1,10 @@
 package com.jhlab.gigsync.domain.board.type;
 
 public enum BoardType {
-    구인구직,
-    홍보
+    BAND_PROMOTION,
+    PERFORMANCE_INFO,
+    MEMBER_RECRUITMENT,
+    BAND_MATCHING,
+    SESSION_RECRUITMENT,
+    FREE
 }
