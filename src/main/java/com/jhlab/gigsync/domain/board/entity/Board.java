@@ -3,10 +3,7 @@ package com.jhlab.gigsync.domain.board.entity;
 import com.jhlab.gigsync.domain.board.type.BoardType;
 import com.jhlab.gigsync.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +22,8 @@ public class Board extends BaseEntity {
     @Lob
     private String text;
 
-    private int viewCount;
+    @Setter
+    private long viewCount;
 
     @Enumerated(EnumType.STRING)
     private BoardType boardType;
@@ -39,5 +37,9 @@ public class Board extends BaseEntity {
         this.text = text;
         this.viewCount = 0;
         this.boardType = boardType;
+    }
+
+    public void addViewCount(long count) {
+        this.viewCount += count;
     }
 }

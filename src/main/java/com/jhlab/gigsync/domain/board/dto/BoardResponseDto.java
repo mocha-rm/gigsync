@@ -1,5 +1,7 @@
 package com.jhlab.gigsync.domain.board.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jhlab.gigsync.domain.board.entity.Board;
 import com.jhlab.gigsync.domain.board.type.BoardType;
 import lombok.Builder;
@@ -9,16 +11,37 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@Builder
 public class BoardResponseDto {
     private final Long id;
     private final String title;
     private final String text;
     private final BoardType boardType;
-    private final int viewCount;
-    private List<String> fileUrls;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private final long viewCount;
+    private final List<String> fileUrls;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime modifiedAt;
+
+    @Builder
+    @JsonCreator
+    public BoardResponseDto(
+            @JsonProperty("id") Long id,
+            @JsonProperty("title") String title,
+            @JsonProperty("text") String text,
+            @JsonProperty("boardType") BoardType boardType,
+            @JsonProperty("viewCount") long viewCount,
+            @JsonProperty("fileUrls") List<String> fileUrls,
+            @JsonProperty("createdAt") LocalDateTime createdAt,
+            @JsonProperty("modifiedAt") LocalDateTime modifiedAt
+    ) {
+        this.id = id;
+        this.title = title;
+        this.text = text;
+        this.boardType = boardType;
+        this.viewCount = viewCount;
+        this.fileUrls = fileUrls;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
+    }
 
     public static BoardResponseDto toDto(Board board, List<String> fileUrls) {
         return new BoardResponseDto(
