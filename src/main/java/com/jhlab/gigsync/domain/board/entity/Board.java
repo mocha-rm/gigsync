@@ -40,4 +40,8 @@ public class Board extends BaseEntity {
         this.viewCount = 0;
         this.boardType = boardType;
     }
+
+    public void addViewCount() {
+        this.viewCount += 1;
+    }
 }

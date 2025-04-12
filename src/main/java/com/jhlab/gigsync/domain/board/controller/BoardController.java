@@ -6,10 +6,7 @@ import com.jhlab.gigsync.domain.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -24,5 +21,10 @@ public class BoardController {
     public ResponseEntity<BoardResponseDto> createBoard(@RequestPart("board") BoardRequestDto requestDto,
                                                         @RequestPart("files") List<MultipartFile> files) {
         return new ResponseEntity<>(boardService.createBoard(requestDto, files), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{boardId}")
+    public ResponseEntity<BoardResponseDto> findBoard(@PathVariable Long boardId) {
+        return new ResponseEntity<>(boardService.findBoard(boardId), HttpStatus.OK);
     }
 }
