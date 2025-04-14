@@ -1,5 +1,6 @@
 package com.jhlab.gigsync.domain.user.entity;
 
+import com.jhlab.gigsync.domain.board.entity.Board;
 import com.jhlab.gigsync.domain.user.type.UserRole;
 import com.jhlab.gigsync.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -7,6 +8,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -27,6 +31,9 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Board> boards = new ArrayList<>();
 
     @Builder
     public User(String email, String password, String nickName) {
