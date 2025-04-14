@@ -6,6 +6,8 @@ import com.jhlab.gigsync.domain.board.entity.Board;
 import com.jhlab.gigsync.domain.board.entity.BoardFile;
 import com.jhlab.gigsync.domain.board.repository.BoardFileRepository;
 import com.jhlab.gigsync.domain.board.repository.BoardRepository;
+import com.jhlab.gigsync.domain.user.entity.User;
+import com.jhlab.gigsync.domain.user.service.UserService;
 import com.jhlab.gigsync.global.common.service.FileService;
 import com.jhlab.gigsync.global.exception.CustomException;
 import com.jhlab.gigsync.global.exception.type.BoardErrorCode;
@@ -13,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +30,7 @@ import java.util.List;
 public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
     private final BoardFileRepository boardFileRepository;
+    private final UserService userService;
     private final FileService fileService;
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -33,10 +38,14 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional
     public BoardResponseDto createBoard(BoardRequestDto requestDto, List<MultipartFile> files) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserFromDB(authentication.getName());
+
         Board board = Board.builder()
                 .title(requestDto.getTitle())
                 .text(requestDto.getText())
                 .boardType(requestDto.getBoardType())
+                .user(user)
                 .build();
 
         boardRepository.save(board);
@@ -48,7 +57,7 @@ public class BoardServiceImpl implements BoardService {
                 .map(BoardFile::getFileUrl)
                 .toList();
 
-        return BoardResponseDto.toDto(board, fileUrls);
+        return BoardResponseDto.toDto(board, user, fileUrls);
     }
 
     @Override
@@ -74,7 +83,7 @@ public class BoardServiceImpl implements BoardService {
         long totalViewCount = board.getViewCount() + (redisViewCount != null ? redisViewCount - 1 : 0);
 
         board.setViewCount(totalViewCount);
-        BoardResponseDto dto = BoardResponseDto.toDto(board, fileUrls);
+        BoardResponseDto dto = BoardResponseDto.toDto(board, board.getUser(), fileUrls);
 
         redisTemplate.opsForValue().set(boardDetailKey, dto, Duration.ofMinutes(10));
 
