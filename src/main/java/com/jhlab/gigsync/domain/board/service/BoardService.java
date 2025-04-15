@@ -16,5 +16,9 @@ public interface BoardService {
 
     Page<BoardResponseDto> findBoardsSorted(String sortType, Pageable pageable);
 
+    void updateBoard(Long boardId, BoardRequestDto requestDto, List<MultipartFile> files);
+
+    void deleteBoard(Long boardId);
+
     Board getBoardFromDB(Long boardId);
 }

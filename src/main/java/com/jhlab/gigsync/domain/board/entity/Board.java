@@ -48,4 +48,10 @@ public class Board extends BaseEntity {
     public void addViewCount(long count) {
         this.viewCount += count;
     }
+
+    public void updateBoard(String title, String text, BoardType boardType) {
+        this.title = title;
+        this.text = text;
+        this.boardType = boardType;
+    }
 }

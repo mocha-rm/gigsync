@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum BoardErrorCode implements ExceptionType {
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시물을 찾을 수 없습니다."),
+    UPDATE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "수정 및 삭제는 작성자만 가능합니다."),
     ;
 
     private final HttpStatus httpStatus;

@@ -50,12 +50,15 @@ public class BoardServiceImpl implements BoardService {
 
         boardRepository.save(board);
 
-        List<BoardFile> uploadedFiles = fileService.uploadFiles(files, board);
-        boardFileRepository.saveAll(uploadedFiles);
+        List<String> fileUrls = null;
 
-        List<String> fileUrls = uploadedFiles.stream()
-                .map(BoardFile::getFileUrl)
-                .toList();
+        if (files != null && !files.isEmpty()) {
+            List<BoardFile> uploadedFiles = fileService.uploadFiles(files, board);
+            boardFileRepository.saveAll(uploadedFiles);
+            fileUrls = uploadedFiles.stream()
+                    .map(BoardFile::getFileUrl)
+                    .toList();
+        }
 
         return BoardResponseDto.toDto(board, user, fileUrls);
     }
@@ -93,6 +96,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<BoardResponseDto> findBoardsSorted(String sortType, Pageable pageable) {
         Sort sort;
 
@@ -122,8 +126,53 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    @Transactional
+    public void updateBoard(Long boardId, BoardRequestDto requestDto, List<MultipartFile> files) {
+        Board board = getBoardFromDB(boardId);
+
+        validateForUpdate(board);
+
+        board.updateBoard(requestDto.getTitle(), requestDto.getText(), requestDto.getBoardType());
+
+        if (requestDto.getDeleteFileIds() != null && !requestDto.getDeleteFileIds().isEmpty()) {
+            List<BoardFile> filesToDelete = boardFileRepository.findAllById(requestDto.getDeleteFileIds());
+            fileService.deleteFiles(filesToDelete);
+            boardFileRepository.deleteAll(filesToDelete);
+        }
+
+        if (files != null && !files.isEmpty()) {
+            List<BoardFile> newFiles = fileService.uploadFiles(files, board);
+            boardFileRepository.saveAll(newFiles);
+        }
+
+        redisTemplate.delete("boardDetail:" + boardId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBoard(Long boardId) {
+        Board board = getBoardFromDB(boardId);
+
+        validateForUpdate(board);
+
+        List<BoardFile> files = boardFileRepository.findAllById(board.getFiles().stream().map(BoardFile::getId).toList());
+        fileService.deleteFiles(files);
+        boardRepository.delete(board);
+
+        redisTemplate.delete("boardDetail:" + boardId);
+        redisTemplate.delete("board:view:" + boardId);
+    }
+
+    @Override
     public Board getBoardFromDB(Long boardId) {
         return boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(BoardErrorCode.BOARD_NOT_FOUND));
+    }
+
+    private void validateForUpdate(Board board) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!board.getUser().getEmail().equals(authentication.getName())) {
+            throw new CustomException(BoardErrorCode.UPDATE_NOT_ALLOWED);
+        }
     }
 }
