@@ -1,16 +1,19 @@
 package com.jhlab.gigsync.domain.board.entity;
 
 import com.jhlab.gigsync.domain.board.type.BoardType;
+import com.jhlab.gigsync.domain.comment.entity.Comment;
 import com.jhlab.gigsync.domain.user.entity.User;
 import com.jhlab.gigsync.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Entity
+@DynamicUpdate
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Board extends BaseEntity {
     @Id
@@ -35,6 +38,9 @@ public class Board extends BaseEntity {
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardFile> files = new ArrayList<>();
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
     @Builder
     public Board(String title, String text, BoardType boardType, User user) {
