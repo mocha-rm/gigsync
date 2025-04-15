@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
@@ -52,6 +53,19 @@ public class FileService {
         return result;
     }
 
+    public void deleteFiles(List<BoardFile> files) {
+        for (BoardFile file : files) {
+            String key = extractKeyFromUrl(file.getFileUrl());
+
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
+
+            s3Client.deleteObject(deleteObjectRequest);
+        }
+    }
+
     private String uploadToS3(MultipartFile file, String fileName) {
         try {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -79,5 +93,9 @@ public class FileService {
         }
 
         return filename.substring(filename.lastIndexOf('.') + 1);
+    }
+
+    private String extractKeyFromUrl(String fileUrl) {
+        return fileUrl.substring(fileUrl.indexOf(".com/") + 5);
     }
 }
