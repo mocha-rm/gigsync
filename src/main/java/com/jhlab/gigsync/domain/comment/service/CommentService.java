@@ -11,4 +11,8 @@ public interface CommentService {
     Page<CommentResponseDto> findComments(Long boardId, Pageable pageable);
 
     CommentResponseDto findComment(Long boardId, Long commentId);
+
+    void updateComment(Long boardId, Long commentId, CommentRequestDto requestDto);
+
+    void deleteComment(Long boardId, Long commentId);
 }

@@ -7,6 +7,6 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface CommentRepositoryCustom {
-    Optional<Comment> findByIdAndBoardId(Long commentId, Long boardId);
+    Optional<Comment> findByIdAndBoardId(Long boardId, Long commentId);
     Page<Comment> findByBoardId(Long boardId, Pageable pageable);
 }

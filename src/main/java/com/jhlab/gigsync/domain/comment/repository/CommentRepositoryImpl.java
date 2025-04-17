@@ -17,7 +17,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Optional<Comment> findByIdAndBoardId(Long commentId, Long boardId) {
+    public Optional<Comment> findByIdAndBoardId(Long boardId, Long commentId) {
         QComment comment = QComment.comment;
         QUser user = QUser.user;
 

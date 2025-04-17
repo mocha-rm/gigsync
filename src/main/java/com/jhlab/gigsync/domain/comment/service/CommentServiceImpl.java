@@ -9,7 +9,7 @@ import com.jhlab.gigsync.domain.comment.repository.CommentRepository;
 import com.jhlab.gigsync.domain.user.entity.User;
 import com.jhlab.gigsync.domain.user.service.UserService;
 import com.jhlab.gigsync.global.exception.CustomException;
-import com.jhlab.gigsync.global.exception.type.BoardErrorCode;
+import com.jhlab.gigsync.global.exception.type.CommentErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CommentServiceImpl implements CommentService{
+public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final UserService userService;
     private final BoardService boardService;
@@ -51,9 +51,27 @@ public class CommentServiceImpl implements CommentService{
     @Override
     @Transactional(readOnly = true)
     public CommentResponseDto findComment(Long boardId, Long commentId) {
-        Comment comment = commentRepository.findByIdAndBoardId(commentId, boardId)
-                .orElseThrow(() -> new CustomException(BoardErrorCode.BOARD_NOT_FOUND));
-
+        Comment comment = getComment(boardId, commentId);
         return CommentResponseDto.toDto(comment);
     }
+
+    @Override
+    @Transactional
+    public void updateComment(Long boardId, Long commentId, CommentRequestDto requestDto) {
+        Comment comment = getComment(boardId, commentId);
+        comment.updateComment(requestDto.getText());
+    }
+
+    @Override
+    @Transactional
+    public void deleteComment(Long boardId, Long commentId) {
+        Comment comment = getComment(boardId, commentId);
+        commentRepository.delete(comment);
+    }
+
+    private Comment getComment(Long boardId, Long commentId) {
+        return commentRepository.findByIdAndBoardId(boardId, commentId)
+                .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
+    }
+
 }

@@ -37,4 +37,19 @@ public class CommentController {
                                                           @PathVariable Long commentId) {
         return new ResponseEntity<>(commentService.findComment(boardId, commentId), HttpStatus.OK);
     }
+
+    @PutMapping("/{commentId}")
+    public ResponseEntity<String> updateComment(@PathVariable Long boardId,
+                                                @PathVariable Long commentId,
+                                                @RequestBody CommentRequestDto requestDto) {
+        commentService.updateComment(boardId, commentId, requestDto);
+        return new ResponseEntity<>("댓글이 수정되었습니다.", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<String> deleteComment(@PathVariable Long boardId,
+                                                @PathVariable Long commentId) {
+        commentService.deleteComment(boardId, commentId);
+        return new ResponseEntity<>("댓글이 삭제되었습니다.", HttpStatus.OK);
+    }
 }
