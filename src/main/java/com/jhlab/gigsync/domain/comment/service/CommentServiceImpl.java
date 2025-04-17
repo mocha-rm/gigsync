@@ -8,19 +8,14 @@ import com.jhlab.gigsync.domain.comment.entity.Comment;
 import com.jhlab.gigsync.domain.comment.repository.CommentRepository;
 import com.jhlab.gigsync.domain.user.entity.User;
 import com.jhlab.gigsync.domain.user.service.UserService;
+import com.jhlab.gigsync.global.exception.CustomException;
+import com.jhlab.gigsync.global.exception.type.BoardErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,13 +51,9 @@ public class CommentServiceImpl implements CommentService{
     @Override
     @Transactional(readOnly = true)
     public CommentResponseDto findComment(Long boardId, Long commentId) {
-        Board board = boardService.getBoardFromDB(boardId);
-        List<Comment> comments = board.getComments();
+        Comment comment = commentRepository.findByIdAndBoardId(commentId, boardId)
+                .orElseThrow(() -> new CustomException(BoardErrorCode.BOARD_NOT_FOUND));
 
-        return comments.stream()
-                .filter(comment -> Objects.equals(comment.getId(), commentId))
-                .findFirst()
-                .map(CommentResponseDto::toDto)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return CommentResponseDto.toDto(comment);
     }
 }
