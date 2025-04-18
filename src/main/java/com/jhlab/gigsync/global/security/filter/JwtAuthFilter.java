@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +22,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -34,6 +36,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = this.getTokenFromHeader(request);
 
         if (!jwtUtil.validateToken(token)) {
+            return;
+        }
+
+
+        String isLogout = (String) redisTemplate.opsForValue().get(token);
+        if ("logout".equals(isLogout)) {
             return;
         }
 

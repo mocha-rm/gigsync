@@ -4,13 +4,12 @@ import com.jhlab.gigsync.domain.user.dto.UserJwtResponseDto;
 import com.jhlab.gigsync.domain.user.dto.UserRequestDto;
 import com.jhlab.gigsync.domain.user.dto.UserResponseDto;
 import com.jhlab.gigsync.domain.user.service.UserService;
+import com.jhlab.gigsync.global.security.auth.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,8 +28,9 @@ public class AccountController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout() {
-        userService.logout();
+    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String accessToken,
+                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        userService.logout(accessToken, userDetails.getUser().getId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

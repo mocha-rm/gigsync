@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,6 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -30,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     @Transactional
@@ -66,6 +70,15 @@ public class UserServiceImpl implements UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = jwtUtil.generateAccessToken(findUser);
+        String refreshToken = jwtUtil.generateRefreshToken(findUser);
+
+        redisTemplate.opsForValue()
+                .set("RT:" + findUser.getId(),
+                        refreshToken,
+                        jwtUtil.getRefreshTokenExpirationTime(),
+                        TimeUnit.MILLISECONDS
+                );
+
         Claims claims = jwtUtil.parseClaims(accessToken);
 
         return UserJwtResponseDto.builder()
@@ -78,8 +91,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void logout() {
+    public void logout(String accessToken, Long userId) {
+        if (accessToken.startsWith("Bearer ")) {
+            accessToken = accessToken.substring(7);
+        }
 
+        long expiration = jwtUtil.getTokenExpirationTime(accessToken);
+        redisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+
+        String refreshKey = "RT:" + userId;
+        if (redisTemplate.hasKey(refreshKey)) {
+            redisTemplate.delete(refreshKey);
+        }
+
+        log.info("유저 [{}] 로그아웃: accessToken 블랙리스트 등록 및 refresh 삭제", userId);
     }
 
     @Override

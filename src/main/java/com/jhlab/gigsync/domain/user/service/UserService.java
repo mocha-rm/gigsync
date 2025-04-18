@@ -11,7 +11,7 @@ public interface UserService {
 
     UserJwtResponseDto login(UserRequestDto userRequestDto);
 
-    void logout();
+    void logout(String accessToken, Long userId);
 
     UserResponseDto findUser(Long userId);
 
