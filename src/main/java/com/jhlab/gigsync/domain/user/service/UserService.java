@@ -15,11 +15,11 @@ public interface UserService {
 
     UserResponseDto findUser(Long userId);
 
-    void updateNickname(UserUpdateRequestDto requestDto);
+    void updateNickname(Long userId, UserUpdateRequestDto requestDto);
 
-    void updatePassword(UserUpdateRequestDto requestDto);
+    void updatePassword(Long userId, UserUpdateRequestDto requestDto);
 
-    void deleteUser();
+    void deleteUser(Long userId);
 
     User getUserFromDB(Long userId);
 

@@ -12,6 +12,8 @@ import com.jhlab.gigsync.global.security.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -77,10 +79,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void logout() {
-        // JWT 구현 시 로그아웃 처리는 어떻게? Redis, Refresh Token, Black List
+
     }
 
     @Override
+    @Cacheable(value = "user", key = "#userId")
     public UserResponseDto findUser(Long userId) {
         User user = getUserFromDB(userId);
         return UserResponseDto.toDto(user);
@@ -88,19 +91,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateNickname(UserUpdateRequestDto requestDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = getUserFromDB(authentication.getName());
-
+    @CacheEvict(value = "user", key = "#userId")
+    public void updateNickname(Long userId, UserUpdateRequestDto requestDto) {
+        User user = getUserFromDB(userId);
         user.updateNickname(requestDto.getNickName());
         userRepository.save(user);
     }
 
     @Override
     @Transactional
-    public void updatePassword(UserUpdateRequestDto requestDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = getUserFromDB(authentication.getName());
+    @CacheEvict(value = "user", key = "#userId")
+    public void updatePassword(Long userId, UserUpdateRequestDto requestDto) {
+        User user = getUserFromDB(userId);
 
         if (!passwordEncoder.matches(requestDto.getCurrentPassword(), user.getPassword())) {
             throw new CustomException(UserErrorCode.PASSWORD_MISMATCH);
@@ -116,10 +118,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void deleteUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = getUserFromDB(authentication.getName());
-
+    @CacheEvict(value = "user", key = "#userId")
+    public void deleteUser(Long userId) {
+        User user = getUserFromDB(userId);
         userRepository.delete(user);
     }
 
