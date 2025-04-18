@@ -4,6 +4,7 @@ import com.jhlab.gigsync.domain.user.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -14,18 +15,22 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Slf4j
+@Getter
 @Component
 public class JwtUtil {
     private final Key key;
     private final long accessTokenExpirationTime;
+    private final long refreshTokenExpirationTime;
 
     public JwtUtil(
             @Value("${jwt.secret}") String secretKey,
-            @Value("${jwt.expiration_time}") long accessTokenExpirationTime
+            @Value("${jwt.access-token.expiration-time}") long accessTokenExpirationTime,
+            @Value("${jwt.refresh-token.expiration-time}") long refreshTokenExpirationTime
     ) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenExpirationTime = accessTokenExpirationTime;
+        this.refreshTokenExpirationTime = refreshTokenExpirationTime;
     }
 
     /**
@@ -35,6 +40,10 @@ public class JwtUtil {
      */
     public String generateAccessToken(User user) {
         return generateToken(user, accessTokenExpirationTime);
+    }
+
+    public String generateRefreshToken(User user) {
+        return generateToken(user, refreshTokenExpirationTime);
     }
 
     /**
@@ -76,6 +85,16 @@ public class JwtUtil {
      */
     public String getUserEmail(String token) {
         return parseClaims(token).get("email", String.class);
+    }
+
+    /**
+     * Token 만료 시간 가져오기
+     * @param token 엑세스 토큰
+     * @return 토큰 만료 시간
+     */
+    public long getTokenExpirationTime(String token) {
+        Claims claims = parseClaims(token);
+        return claims.getExpiration().getTime() - System.currentTimeMillis();
     }
 
     /**

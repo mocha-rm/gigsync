@@ -11,15 +11,15 @@ public interface UserService {
 
     UserJwtResponseDto login(UserRequestDto userRequestDto);
 
-    void logout();
+    void logout(String accessToken, Long userId);
 
     UserResponseDto findUser(Long userId);
 
-    void updateNickname(UserUpdateRequestDto requestDto);
+    void updateNickname(Long userId, UserUpdateRequestDto requestDto);
 
-    void updatePassword(UserUpdateRequestDto requestDto);
+    void updatePassword(Long userId, UserUpdateRequestDto requestDto);
 
-    void deleteUser();
+    void deleteUser(Long userId);
 
     User getUserFromDB(Long userId);
 

@@ -12,6 +12,9 @@ import com.jhlab.gigsync.global.security.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,6 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -28,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     @Transactional
@@ -64,6 +70,15 @@ public class UserServiceImpl implements UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = jwtUtil.generateAccessToken(findUser);
+        String refreshToken = jwtUtil.generateRefreshToken(findUser);
+
+        redisTemplate.opsForValue()
+                .set("RT:" + findUser.getId(),
+                        refreshToken,
+                        jwtUtil.getRefreshTokenExpirationTime(),
+                        TimeUnit.MILLISECONDS
+                );
+
         Claims claims = jwtUtil.parseClaims(accessToken);
 
         return UserJwtResponseDto.builder()
@@ -76,11 +91,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void logout() {
-        // JWT 구현 시 로그아웃 처리는 어떻게? Redis, Refresh Token, Black List
+    public void logout(String accessToken, Long userId) {
+        if (accessToken.startsWith("Bearer ")) {
+            accessToken = accessToken.substring(7);
+        }
+
+        long expiration = jwtUtil.getTokenExpirationTime(accessToken);
+        redisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+
+        String refreshKey = "RT:" + userId;
+        if (redisTemplate.hasKey(refreshKey)) {
+            redisTemplate.delete(refreshKey);
+        }
+
+        log.info("유저 [{}] 로그아웃: accessToken 블랙리스트 등록 및 refresh 삭제", userId);
     }
 
     @Override
+    @Cacheable(value = "user", key = "#userId")
     public UserResponseDto findUser(Long userId) {
         User user = getUserFromDB(userId);
         return UserResponseDto.toDto(user);
@@ -88,19 +116,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateNickname(UserUpdateRequestDto requestDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = getUserFromDB(authentication.getName());
-
+    @CacheEvict(value = "user", key = "#userId")
+    public void updateNickname(Long userId, UserUpdateRequestDto requestDto) {
+        User user = getUserFromDB(userId);
         user.updateNickname(requestDto.getNickName());
         userRepository.save(user);
     }
 
     @Override
     @Transactional
-    public void updatePassword(UserUpdateRequestDto requestDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = getUserFromDB(authentication.getName());
+    @CacheEvict(value = "user", key = "#userId")
+    public void updatePassword(Long userId, UserUpdateRequestDto requestDto) {
+        User user = getUserFromDB(userId);
 
         if (!passwordEncoder.matches(requestDto.getCurrentPassword(), user.getPassword())) {
             throw new CustomException(UserErrorCode.PASSWORD_MISMATCH);
@@ -116,10 +143,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void deleteUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = getUserFromDB(authentication.getName());
-
+    @CacheEvict(value = "user", key = "#userId")
+    public void deleteUser(Long userId) {
+        User user = getUserFromDB(userId);
         userRepository.delete(user);
     }
 

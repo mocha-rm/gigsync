@@ -34,7 +34,10 @@ server:
     max-http-post-size: 500MB
 
 jwt:
-  expiration_time: ${JWT_EXP}
+  access-token:
+    expiration-time: ${JWT_ACCESS_EXP}
+  refresh-token:
+    expiration-time: ${JWT_REFRESH_EXP}
   secret: ${JWT_SECRET}
 
 cloud:

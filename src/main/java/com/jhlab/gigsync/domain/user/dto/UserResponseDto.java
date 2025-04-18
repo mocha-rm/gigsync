@@ -1,5 +1,7 @@
 package com.jhlab.gigsync.domain.user.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jhlab.gigsync.domain.user.entity.User;
 import com.jhlab.gigsync.domain.user.type.UserRole;
 import lombok.Builder;
@@ -17,7 +19,15 @@ public class UserResponseDto {
     private final LocalDateTime modifiedAt;
 
     @Builder
-    public UserResponseDto(Long id, String email, String nickName, UserRole userRole, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    @JsonCreator
+    public UserResponseDto(
+            @JsonProperty("id") Long id,
+            @JsonProperty("email") String email,
+            @JsonProperty("nickName") String nickName,
+            @JsonProperty("userRole") UserRole userRole,
+            @JsonProperty("createdAt") LocalDateTime createdAt,
+            @JsonProperty("modifiedAt") LocalDateTime modifiedAt
+    ) {
         this.id = id;
         this.email = email;
         this.nickName = nickName;
