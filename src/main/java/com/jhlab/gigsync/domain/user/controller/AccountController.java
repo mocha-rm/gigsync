@@ -5,6 +5,7 @@ import com.jhlab.gigsync.domain.user.dto.UserRequestDto;
 import com.jhlab.gigsync.domain.user.dto.UserResponseDto;
 import com.jhlab.gigsync.domain.user.service.UserService;
 import com.jhlab.gigsync.global.security.auth.UserDetailsImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class AccountController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<UserResponseDto> signUp(@RequestBody UserRequestDto userRequestDto) {
+    public ResponseEntity<UserResponseDto> signUp(@Valid @RequestBody UserRequestDto userRequestDto) {
         return new ResponseEntity<>(userService.createUser(userRequestDto), HttpStatus.CREATED);
     }
 
