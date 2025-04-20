@@ -3,6 +3,7 @@ package com.jhlab.gigsync.domain.board.controller;
 import com.jhlab.gigsync.domain.board.dto.BoardRequestDto;
 import com.jhlab.gigsync.domain.board.dto.BoardResponseDto;
 import com.jhlab.gigsync.domain.board.service.BoardService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +22,7 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping
-    public ResponseEntity<BoardResponseDto> createBoard(@RequestPart("board") BoardRequestDto requestDto,
+    public ResponseEntity<BoardResponseDto> createBoard(@RequestPart("board") @Valid BoardRequestDto requestDto,
                                                         @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         return new ResponseEntity<>(boardService.createBoard(requestDto, files), HttpStatus.CREATED);
     }
@@ -39,7 +40,7 @@ public class BoardController {
 
     @PatchMapping("/{boardId}")
     public ResponseEntity<String> updateBoard(@PathVariable Long boardId,
-                                              @RequestPart("board") BoardRequestDto requestDto,
+                                              @RequestPart("board") @Valid BoardRequestDto requestDto,
                                               @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         boardService.updateBoard(boardId, requestDto, files);
         return new ResponseEntity<>("게시글이 수정되었습니다.", HttpStatus.OK);

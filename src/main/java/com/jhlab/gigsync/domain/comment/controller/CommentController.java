@@ -3,6 +3,7 @@ package com.jhlab.gigsync.domain.comment.controller;
 import com.jhlab.gigsync.domain.comment.dto.CommentRequestDto;
 import com.jhlab.gigsync.domain.comment.dto.CommentResponseDto;
 import com.jhlab.gigsync.domain.comment.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +21,7 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<CommentResponseDto> createComment(@PathVariable Long boardId,
-                                                            @RequestBody CommentRequestDto requestDto) {
+                                                            @Valid @RequestBody CommentRequestDto requestDto) {
         return new ResponseEntity<>(commentService.createComment(boardId, requestDto), HttpStatus.CREATED);
     }
 
@@ -41,7 +42,7 @@ public class CommentController {
     @PutMapping("/{commentId}")
     public ResponseEntity<String> updateComment(@PathVariable Long boardId,
                                                 @PathVariable Long commentId,
-                                                @RequestBody CommentRequestDto requestDto) {
+                                                @Valid @RequestBody CommentRequestDto requestDto) {
         commentService.updateComment(boardId, commentId, requestDto);
         return new ResponseEntity<>("댓글이 수정되었습니다.", HttpStatus.OK);
     }
