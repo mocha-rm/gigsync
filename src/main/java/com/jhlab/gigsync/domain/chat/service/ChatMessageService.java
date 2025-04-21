@@ -9,7 +9,7 @@ import java.util.List;
 public interface ChatMessageService {
     ChatMessageResponseDto saveMessage(Long receiverId, Long senderId, ChatMessageRequestDto requestDto);
 
-    List<ChatMessage> getMessagesByRoom(String roomId);
+    List<ChatMessageResponseDto> getMessagesByRoom(String roomId);
 
     List<ChatMessage> getUnreadMessages(String userId);
 }

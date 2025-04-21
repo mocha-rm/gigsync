@@ -2,7 +2,6 @@ package com.jhlab.gigsync.domain.chat.controller;
 
 import com.jhlab.gigsync.domain.chat.dto.ChatMessageRequestDto;
 import com.jhlab.gigsync.domain.chat.dto.ChatMessageResponseDto;
-import com.jhlab.gigsync.domain.chat.entity.ChatMessage;
 import com.jhlab.gigsync.domain.chat.service.ChatMessageService;
 import com.jhlab.gigsync.global.security.auth.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -28,7 +27,7 @@ public class ChatMessageController {
     }
 
     @GetMapping("/room/{roomId}")
-    public List<ChatMessage> getRoomMessages(@PathVariable String roomId) {
+    public List<ChatMessageResponseDto> getRoomMessages(@PathVariable String roomId) {
         return chatMessageService.getMessagesByRoom(roomId);
     }
 }

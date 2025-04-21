@@ -38,8 +38,10 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     }
 
     @Override
-    public List<ChatMessage> getMessagesByRoom(String roomId) {
-        return chatMessageRepository.findByRoomIdOrderByTimestampDesc(roomId);
+    public List<ChatMessageResponseDto> getMessagesByRoom(String roomId) {
+        List<ChatMessage> chatMessages = chatMessageRepository.findByRoomIdOrderByTimestampDesc(roomId);
+        return chatMessages.stream()
+                .map(ChatMessageResponseDto::toDto).toList();
     }
 
     @Override
