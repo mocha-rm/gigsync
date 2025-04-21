@@ -47,6 +47,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
 
+	// MongoDB
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
 	//Validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'jakarta.validation:jakarta.validation-api:3.0.2'

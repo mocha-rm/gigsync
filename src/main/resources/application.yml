@@ -26,6 +26,13 @@ spring:
       host: ${REDIS_HOST}
       port: 6379
       password: ${REDIS_PASSWORD}
+    mongodb:
+      username: ${MONGO_USER}
+      password: ${MONGO_PASSWORD}
+      host: ${MONGO_HOST}
+      port: 27017
+      database: gigsync-chat
+      authentication-database: ${MONGO_AUTH}
 
 server:
   error:
