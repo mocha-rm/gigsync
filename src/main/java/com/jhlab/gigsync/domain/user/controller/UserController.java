@@ -11,14 +11,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
 
+    @GetMapping
+    public ResponseEntity<List<UserResponseDto>> findUsers() {
+        return new ResponseEntity<>(userService.findUsers(), HttpStatus.OK);
+    }
+
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponseDto> findUser(@PathVariable Long userId) {
+        return new ResponseEntity<>(userService.findUser(userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDto> getMyInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long userId = userDetails.getUser().getId();
         return new ResponseEntity<>(userService.findUser(userId), HttpStatus.OK);
     }
 
