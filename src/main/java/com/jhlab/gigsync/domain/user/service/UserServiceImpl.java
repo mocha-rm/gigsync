@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -105,6 +106,14 @@ public class UserServiceImpl implements UserService {
         }
 
         log.info("유저 [{}] 로그아웃: accessToken 블랙리스트 등록 및 refresh 삭제", userId);
+    }
+
+    @Override
+    public List<UserResponseDto> findUsers() {
+        List<User> all = userRepository.findAll();
+
+        return all.stream()
+                .map(UserResponseDto::toDto).toList();
     }
 
     @Override
