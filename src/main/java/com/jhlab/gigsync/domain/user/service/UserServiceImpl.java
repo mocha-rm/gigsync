@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserResponseDto createUser(UserRequestDto userRequestDto) {
+    public UserResponseDto createUser(UserRequestDto userRequestDto, boolean isAdmin) {
         if (userRepository.findByEmail(userRequestDto.getEmail()).isPresent()) {
             throw new CustomException(UserErrorCode.EMAIL_DUPLICATED);
         }
@@ -48,6 +48,10 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(userRequestDto.getPassword()))
                 .nickName(userRequestDto.getNickName())
                 .build();
+
+        if (isAdmin) {
+            user.registerAdminAccount();
+        }
 
         userRepository.save(user);
 
@@ -156,6 +160,14 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long userId) {
         User user = getUserFromDB(userId);
         userRepository.delete(user);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "user", key = "#userId")
+    public void registerAdmin(Long userId) {
+        User user = getUserFromDB(userId);
+        user.registerAdminAccount();
     }
 
     @Override

@@ -18,9 +18,14 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController {
     private final UserService userService;
 
+    @PostMapping("/signup/admin")
+    public ResponseEntity<UserResponseDto> adminSignup(@RequestBody UserRequestDto userRequestDto) {
+        return new ResponseEntity<>(userService.createUser(userRequestDto, true), HttpStatus.CREATED);
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<UserResponseDto> signUp(@Valid @RequestBody UserRequestDto userRequestDto) {
-        return new ResponseEntity<>(userService.createUser(userRequestDto), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.createUser(userRequestDto, false), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")

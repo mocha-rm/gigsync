@@ -9,7 +9,7 @@ import com.jhlab.gigsync.domain.user.entity.User;
 import java.util.List;
 
 public interface UserService {
-    UserResponseDto createUser(UserRequestDto userRequestDto);
+    UserResponseDto createUser(UserRequestDto userRequestDto, boolean isAdmin);
 
     UserJwtResponseDto login(UserRequestDto userRequestDto);
 
@@ -24,6 +24,8 @@ public interface UserService {
     void updatePassword(Long userId, UserUpdateRequestDto requestDto);
 
     void deleteUser(Long userId);
+
+    void registerAdmin(Long userId);
 
     User getUserFromDB(Long userId);
 
