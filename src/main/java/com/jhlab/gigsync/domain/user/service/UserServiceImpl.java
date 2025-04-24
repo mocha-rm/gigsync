@@ -89,6 +89,7 @@ public class UserServiceImpl implements UserService {
         return UserJwtResponseDto.builder()
                 .id(findUser.getId())
                 .email(findUser.getEmail())
+                .nickName(findUser.getNickName())
                 .role(findUser.getRole().toString())
                 .accessToken(accessToken)
                 .exp(claims.getExpiration())
