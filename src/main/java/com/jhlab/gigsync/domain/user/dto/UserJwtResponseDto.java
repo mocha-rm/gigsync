@@ -9,14 +9,16 @@ import java.util.Date;
 public class UserJwtResponseDto {
     private final Long id;
     private final String email;
+    private final String nickName;
     private final String role;
     private final String accessToken;
     private final Date exp;
 
     @Builder
-    public UserJwtResponseDto(Long id, String email, String role, String accessToken, Date exp) {
+    public UserJwtResponseDto(Long id, String email, String nickName, String role, String accessToken, Date exp) {
         this.id = id;
         this.email = email;
+        this.nickName = nickName;
         this.role = role;
         this.accessToken = accessToken;
         this.exp = exp;

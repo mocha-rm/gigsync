@@ -33,7 +33,13 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    public static final String[] WHITE_LIST = {"/", "/api/signup", "/api/login", "/ws/**"};
+    public static final String[] WHITE_LIST = {
+            "/",
+            "/api/signup",
+            "/api/signup/admin",
+            "/api/login",
+            "/ws/**"
+    };
 
     @Bean
     public JwtAuthFilter jwtAuthFilter() {
