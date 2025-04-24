@@ -6,6 +6,7 @@ import com.jhlab.gigsync.domain.board.entity.Board;
 import com.jhlab.gigsync.domain.board.entity.BoardFile;
 import com.jhlab.gigsync.domain.board.repository.BoardFileRepository;
 import com.jhlab.gigsync.domain.board.repository.BoardRepository;
+import com.jhlab.gigsync.domain.board.type.BoardType;
 import com.jhlab.gigsync.domain.user.entity.User;
 import com.jhlab.gigsync.domain.user.service.UserService;
 import com.jhlab.gigsync.global.common.service.FileService;
@@ -97,7 +98,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<BoardResponseDto> findBoardsSorted(String sortType, Pageable pageable) {
+    public Page<BoardResponseDto> findBoardsSorted(String sortType, BoardType boardType, Pageable pageable) {
         Sort sort;
 
         if (sortType.equals("view")) {
@@ -112,13 +113,22 @@ public class BoardServiceImpl implements BoardService {
                 sort
         );
 
-        Page<Board> boardPage = boardRepository.findAll(sortedPageable);
+        Page<Board> boardPage;
+        if (boardType == null) {
+            boardPage = boardRepository.findAll(sortedPageable);
+        } else {
+            boardPage = boardRepository.findAllByBoardType(boardType, sortedPageable);
+        }
 
         List<BoardResponseDto> dtoList = boardPage.getContent().stream()
                 .map(board -> BoardResponseDto.builder()
                         .id(board.getId())
+                        .userName(board.getUser().getNickName())
                         .title(board.getTitle())
+                        .boardType(board.getBoardType())
                         .viewCount(board.getViewCount())
+                        .createdAt(board.getCreatedAt())
+                        .modifiedAt(board.getModifiedAt())
                         .build()
                 ).toList();
 

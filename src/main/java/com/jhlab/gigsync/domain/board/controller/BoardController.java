@@ -3,6 +3,7 @@ package com.jhlab.gigsync.domain.board.controller;
 import com.jhlab.gigsync.domain.board.dto.BoardRequestDto;
 import com.jhlab.gigsync.domain.board.dto.BoardResponseDto;
 import com.jhlab.gigsync.domain.board.service.BoardService;
+import com.jhlab.gigsync.domain.board.type.BoardType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,8 +35,9 @@ public class BoardController {
 
     @GetMapping
     public ResponseEntity<Page<BoardResponseDto>> findBoards(@RequestParam(defaultValue = "latest") String sortType,
+                                                             @RequestParam(required = false) BoardType boardType,
                                                              @PageableDefault(size = 10) Pageable pageable) {
-        return new ResponseEntity<>(boardService.findBoardsSorted(sortType, pageable), HttpStatus.OK);
+        return new ResponseEntity<>(boardService.findBoardsSorted(sortType, boardType, pageable), HttpStatus.OK);
     }
 
     @PatchMapping("/{boardId}")
