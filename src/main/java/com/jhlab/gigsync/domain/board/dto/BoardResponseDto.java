@@ -27,7 +27,7 @@ public class BoardResponseDto {
     @JsonCreator
     public BoardResponseDto(
             @JsonProperty("id") Long id,
-            @JsonProperty("user") String userName,
+            @JsonProperty("userName") String userName,
             @JsonProperty("title") String title,
             @JsonProperty("text") String text,
             @JsonProperty("boardType") BoardType boardType,

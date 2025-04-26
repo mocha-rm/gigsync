@@ -4,6 +4,7 @@ import com.jhlab.gigsync.domain.chat.dto.ChatMessageRequestDto;
 import com.jhlab.gigsync.domain.chat.dto.ChatMessageResponseDto;
 import com.jhlab.gigsync.domain.chat.service.ChatMessageService;
 import com.jhlab.gigsync.global.security.auth.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import java.util.List;
 public class ChatMessageController {
     private final ChatMessageService chatMessageService;
 
+    @Operation(summary = "메시지 보내기")
     @PostMapping("/{receiverId}")
     public ResponseEntity<ChatMessageResponseDto> sendMessage(@PathVariable Long receiverId,
                                                               @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -26,6 +28,7 @@ public class ChatMessageController {
         return new ResponseEntity<>(chatMessageService.saveMessage(receiverId, userDetails.getUser().getId(), requestDto), HttpStatus.OK);
     }
 
+    @Operation(summary = "메시지 가져오기")
     @GetMapping("/room/{roomId}")
     public List<ChatMessageResponseDto> getRoomMessages(@PathVariable String roomId) {
         return chatMessageService.getMessagesByRoom(roomId);

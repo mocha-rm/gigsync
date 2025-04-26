@@ -1,6 +1,7 @@
 package com.jhlab.gigsync.domain.user.controller;
 
 import com.jhlab.gigsync.domain.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminUserController {
     private final UserService userService;
 
+    @Operation(summary = "관리자 등록")
     @PutMapping("/admin_registration")
     public ResponseEntity<String> registerAdmin(@PathVariable Long userId) {
         userService.registerAdmin(userId);
         return new ResponseEntity<>("관리자 등록이 완료되었습니다.", HttpStatus.OK);
     }
 
+    @Operation(summary = "유저 벤")
     @PutMapping("/ban")
     public ResponseEntity<String> banUser(@PathVariable Long userId) {
         //userService.banUser(userId);
