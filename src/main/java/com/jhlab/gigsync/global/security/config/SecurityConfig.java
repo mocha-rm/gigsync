@@ -38,7 +38,9 @@ public class SecurityConfig {
             "/api/signup",
             "/api/signup/admin",
             "/api/login",
-            "/ws/**"
+            "/ws/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
     };
 
     @Bean
@@ -83,9 +85,9 @@ public class SecurityConfig {
         http.httpBasic(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(WHITE_LIST).permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
+                .requestMatchers(WHITE_LIST).permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
         );
 
         http.exceptionHandling((exceptionHandling) -> exceptionHandling
