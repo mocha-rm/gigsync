@@ -14,6 +14,7 @@ import java.util.List;
 @Getter
 public class BoardResponseDto {
     private final Long id;
+    private final Long userId;
     private final String userName;
     private final String title;
     private final String text;
@@ -27,6 +28,7 @@ public class BoardResponseDto {
     @JsonCreator
     public BoardResponseDto(
             @JsonProperty("id") Long id,
+            @JsonProperty("userId") Long userId,
             @JsonProperty("userName") String userName,
             @JsonProperty("title") String title,
             @JsonProperty("text") String text,
@@ -38,6 +40,7 @@ public class BoardResponseDto {
     ) {
 
         this.id = id;
+        this.userId = userId;
         this.userName = userName;
         this.title = title;
         this.text = text;
@@ -51,6 +54,7 @@ public class BoardResponseDto {
     public static BoardResponseDto toDto(Board board, User user, List<String> fileUrls) {
         return new BoardResponseDto(
                 board.getId(),
+                user.getId(),
                 user.getNickName(),
                 board.getTitle(),
                 board.getText(),
