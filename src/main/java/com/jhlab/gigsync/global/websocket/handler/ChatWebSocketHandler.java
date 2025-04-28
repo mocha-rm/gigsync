@@ -1,9 +1,9 @@
 package com.jhlab.gigsync.global.websocket.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jhlab.gigsync.domain.chat.entity.ChatMessage;
-import com.jhlab.gigsync.domain.chat.repository.ChatMessageRepository;
-import com.jhlab.gigsync.domain.chat.type.MessageType;
+import com.jhlab.gigsync.domain.chat.dto.ChatMessageRequestDto;
+import com.jhlab.gigsync.domain.chat.dto.ChatMessageResponseDto;
+import com.jhlab.gigsync.domain.chat.service.ChatMessageService;
 import com.jhlab.gigsync.global.kafka.KafkaProducerService;
 import com.jhlab.gigsync.global.security.utils.JwtUtil;
 import com.jhlab.gigsync.global.websocket.manager.WebSocketSessionManager;
@@ -17,10 +17,10 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final JwtUtil jwtUtil;
     private final KafkaProducerService kafkaProducerService;
     private final WebSocketSessionManager sessionManager;
-    private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageService chatMessageService;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -37,7 +37,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         String query = Objects.requireNonNull(session.getUri()).getQuery(); // token=xxx&receiverId=2
 
         Map<String, String> params = Arrays.stream(query.split("&"))
-                .map(param -> param.split("=", 2)) // "="으로 나누되 최대 2개로만 분리
+                .map(param -> param.split("=", 2))
                 .filter(pair -> pair.length == 2)
                 .collect(Collectors.toMap(pair -> pair[0], pair -> pair[1]));
 
@@ -57,10 +57,26 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
         String userId = String.valueOf(jwtUtil.getUserId(token));
         session.getAttributes().put("userId", userId);
-        session.getAttributes().put("receiverId", receiverId); // 필요 시 저장
+        session.getAttributes().put("receiverId", receiverId);
         sessionManager.register(userId, session);
 
         log.info("WebSocket 연결됨 - userId: {}, receiverId: {}", userId, receiverId);
+
+        try {
+            String roomId = generateRoomId(Long.parseLong(userId), Long.parseLong(receiverId));
+            log.info("채팅방 Id: {}", roomId);
+
+            List<ChatMessageResponseDto> messages = chatMessageService.getMessagesByRoom(roomId, Long.parseLong(userId));
+
+            for (ChatMessageResponseDto message : messages) {
+                String messageJson = objectMapper.writeValueAsString(message);
+                session.sendMessage(new TextMessage(messageJson));
+            }
+
+            chatMessageService.markMessagesAsRead(roomId, Long.parseLong(receiverId));
+        } catch (Exception e) {
+            log.error("과거 메시지 전송 실패", e);
+        }
     }
 
     @Override
@@ -68,25 +84,27 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         String senderId = (String) session.getAttributes().get("userId");
         String receiverId = (String) session.getAttributes().get("receiverId");
 
-        // 텍스트만 받으므로 JSON 파싱 X
         String content = message.getPayload();
 
-        ChatMessage chatMessage = ChatMessage.builder()
-                .senderId(senderId)
-                .receiverId(receiverId)
-                .content(content)
-                .messageType(MessageType.TEXT)
-                .roomId(Stream.of(senderId, receiverId).sorted().collect(Collectors.joining("-")))
-                .build();
+        ChatMessageRequestDto requestDto = new ChatMessageRequestDto(content);
+        ChatMessageResponseDto savedMessage = chatMessageService.saveMessage(
+                Long.parseLong(receiverId),
+                Long.parseLong(senderId),
+                requestDto
+        );
 
-        chatMessageRepository.save(chatMessage);
-
-        String messageJson = objectMapper.writeValueAsString(chatMessage);
+        String messageJson = objectMapper.writeValueAsString(savedMessage);
         kafkaProducerService.sendMessage(messageJson);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessionManager.unregister(session);
+    }
+
+    private String generateRoomId(Long user1Id, Long user2Id) {
+        return user1Id < user2Id
+                ? user1Id + "-" + user2Id
+                : user2Id + "-" + user1Id;
     }
 }

@@ -22,6 +22,8 @@ public class ChatMessage {
     private String content;
 
     private Instant timestamp;
+
+    @Setter
     private boolean isRead;
 
     @Builder

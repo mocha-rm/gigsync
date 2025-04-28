@@ -28,6 +28,8 @@ public class KafkaConsumerService {
 
             if (receiverSession != null && receiverSession.isOpen()) {
                 receiverSession.sendMessage(new TextMessage(messageJson));
+            } else {
+                log.info("수신자가 오프라인입니다. 메시지를 저장합니다.");
             }
 
         } catch (Exception e) {
