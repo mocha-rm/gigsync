@@ -13,6 +13,7 @@ public class ChatMessageResponseDto {
     private final String id;
     private final String roomId;
     private final String senderId;
+    private final String senderNickName;
     private final String receiverId;
     private final String content;
     private final MessageType type;
@@ -24,6 +25,7 @@ public class ChatMessageResponseDto {
                 message.getId(),
                 message.getRoomId(),
                 message.getSenderId(),
+                message.getSenderNickName(),
                 message.getReceiverId(),
                 message.getContent(),
                 message.getType(),

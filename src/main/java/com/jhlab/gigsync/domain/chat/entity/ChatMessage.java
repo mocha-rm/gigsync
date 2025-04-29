@@ -15,6 +15,7 @@ public class ChatMessage {
     private String id;
 
     private String senderId;
+    private String senderNickName;
     private String receiverId;
     private String roomId;
 
@@ -27,8 +28,9 @@ public class ChatMessage {
     private boolean isRead;
 
     @Builder
-    public ChatMessage(String senderId, String receiverId, String roomId, MessageType messageType, String content) {
+    public ChatMessage(String senderId, String senderNickName, String receiverId, String roomId, MessageType messageType, String content) {
         this.senderId = senderId;
+        this.senderNickName = senderNickName;
         this.receiverId = receiverId;
         this.roomId = roomId;
         this.type = messageType;
