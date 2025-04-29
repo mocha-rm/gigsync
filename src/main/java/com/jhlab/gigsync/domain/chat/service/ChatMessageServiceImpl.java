@@ -30,7 +30,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     @Override
     @Transactional
     public ChatMessageResponseDto saveMessage(Long receiverId, Long senderId, ChatMessageRequestDto requestDto) {
-        User receiver = userService.getUserFromDB(receiverId);
+        var receiver = userService.findUser(receiverId);
+        var sender = userService.findUser(senderId);
         String roomId = generateRoomId(senderId, receiverId);
 
         ChatRoom room = findOrCreateRoom(senderId, receiverId);
@@ -39,6 +40,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         ChatMessage message = ChatMessage.builder()
                 .receiverId(receiverId.toString())
                 .senderId(senderId.toString())
+                .senderNickName(sender.getNickName())
                 .content(requestDto.getContent())
                 .roomId(roomId)
                 .messageType(MessageType.TEXT)
@@ -62,7 +64,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
 
-        List<ChatMessage> chatMessages = chatMessageRepository.findByRoomIdOrderByTimestampDesc(roomId);
+        List<ChatMessage> chatMessages = chatMessageRepository.findByRoomIdOrderByTimestampAsc(roomId);
         return chatMessages.stream()
                 .map(ChatMessageResponseDto::toDto).toList();
     }

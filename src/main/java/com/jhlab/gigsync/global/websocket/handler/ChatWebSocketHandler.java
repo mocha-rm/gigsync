@@ -69,8 +69,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             List<ChatMessageResponseDto> messages = chatMessageService.getMessagesByRoom(roomId, Long.parseLong(userId));
 
             for (ChatMessageResponseDto message : messages) {
-                String messageJson = objectMapper.writeValueAsString(message);
-                session.sendMessage(new TextMessage(messageJson));
+                session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
             }
 
             chatMessageService.markMessagesAsRead(roomId, Long.parseLong(receiverId));
