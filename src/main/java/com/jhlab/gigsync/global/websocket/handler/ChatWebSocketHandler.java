@@ -65,6 +65,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         try {
             String roomId = generateRoomId(Long.parseLong(userId), Long.parseLong(receiverId));
             log.info("채팅방 Id: {}", roomId);
+            session.getAttributes().put("roomId", roomId);
 
             List<ChatMessageResponseDto> messages = chatMessageService.getMessagesByRoom(roomId, Long.parseLong(userId));
 
