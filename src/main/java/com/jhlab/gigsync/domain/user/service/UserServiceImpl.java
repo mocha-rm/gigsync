@@ -1,9 +1,6 @@
 package com.jhlab.gigsync.domain.user.service;
 
-import com.jhlab.gigsync.domain.user.dto.UserJwtResponseDto;
-import com.jhlab.gigsync.domain.user.dto.UserRequestDto;
-import com.jhlab.gigsync.domain.user.dto.UserResponseDto;
-import com.jhlab.gigsync.domain.user.dto.UserUpdateRequestDto;
+import com.jhlab.gigsync.domain.user.dto.*;
 import com.jhlab.gigsync.domain.user.entity.User;
 import com.jhlab.gigsync.domain.user.repository.UserRepository;
 import com.jhlab.gigsync.global.exception.CustomException;
@@ -24,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -59,7 +57,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserJwtResponseDto login(UserRequestDto userRequestDto) {
+    public UserJwtWithRefreshDto login(UserRequestDto userRequestDto) {
         User findUser = getUserFromDB(userRequestDto.getEmail());
 
         if (!passwordEncoder.matches(userRequestDto.getPassword(), findUser.getPassword())) {
@@ -86,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
         Claims claims = jwtUtil.parseClaims(accessToken);
 
-        return UserJwtResponseDto.builder()
+        UserJwtResponseDto userJwtResponseDto = UserJwtResponseDto.builder()
                 .id(findUser.getId())
                 .email(findUser.getEmail())
                 .nickName(findUser.getNickName())
@@ -94,6 +92,8 @@ public class UserServiceImpl implements UserService {
                 .accessToken(accessToken)
                 .exp(claims.getExpiration())
                 .build();
+
+        return new UserJwtWithRefreshDto(userJwtResponseDto, refreshToken);
     }
 
     @Override
@@ -111,6 +111,23 @@ public class UserServiceImpl implements UserService {
         }
 
         log.info("유저 [{}] 로그아웃: accessToken 블랙리스트 등록 및 refresh 삭제", userId);
+    }
+
+    @Override
+    public Map<String, Object> refreshAccessToken(String refreshToken) {
+        Long userId = jwtUtil.getUserId(refreshToken);
+
+        validateRefreshToken(refreshToken, userId);
+
+        User user = getUserFromDB(userId);
+
+        String newAccessToken = jwtUtil.generateAccessToken(user);
+        Claims newClaims = jwtUtil.parseClaims(newAccessToken);
+
+        return Map.of(
+                "accessToken", newAccessToken,
+                "exp", newClaims.getExpiration()
+        );
     }
 
     @Override
@@ -181,5 +198,16 @@ public class UserServiceImpl implements UserService {
     public User getUserFromDB(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    private void validateRefreshToken(String refreshToken, Long userId) {
+        String redisKey = "RT:" + userId;
+        String storedToken = (String) redisTemplate.opsForValue().get(redisKey);
+
+        log.info("Stored Token: {}", storedToken);
+
+        if (storedToken == null || !storedToken.equals(refreshToken)) {
+            throw new CustomException(UserErrorCode.INVALID_REFRESH_TOKEN);
+        }
     }
 }

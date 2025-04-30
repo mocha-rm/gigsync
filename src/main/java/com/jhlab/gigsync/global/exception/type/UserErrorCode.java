@@ -16,6 +16,7 @@ public enum UserErrorCode implements ExceptionType {
     INVALID_USER(HttpStatus.UNAUTHORIZED, "인증이 유효하지 않습니다, 로그인해주세요."),
     NEED_ADMIN_ROLE(HttpStatus.FORBIDDEN, "관리자 권한이 필요합니다."),
     USER_UNAUTHORIZED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다.")
     ;
 
     private final HttpStatus httpStatus;
