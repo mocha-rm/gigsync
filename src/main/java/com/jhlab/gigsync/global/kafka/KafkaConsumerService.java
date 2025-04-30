@@ -27,7 +27,11 @@ public class KafkaConsumerService {
             log.info("Receiver session: {}", receiverSession);
 
             if (receiverSession != null && receiverSession.isOpen()) {
-                receiverSession.sendMessage(new TextMessage(messageJson));
+                String sessionRoomId = (String) receiverSession.getAttributes().get("roomId");
+
+                if (message.getRoomId().equals(sessionRoomId)) {
+                    receiverSession.sendMessage(new TextMessage(messageJson));
+                }
             } else {
                 log.info("수신자가 오프라인입니다. 메시지를 저장합니다.");
             }
