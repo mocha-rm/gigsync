@@ -1,19 +1,19 @@
 package com.jhlab.gigsync.domain.user.service;
 
-import com.jhlab.gigsync.domain.user.dto.UserJwtResponseDto;
-import com.jhlab.gigsync.domain.user.dto.UserRequestDto;
-import com.jhlab.gigsync.domain.user.dto.UserResponseDto;
-import com.jhlab.gigsync.domain.user.dto.UserUpdateRequestDto;
+import com.jhlab.gigsync.domain.user.dto.*;
 import com.jhlab.gigsync.domain.user.entity.User;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
     UserResponseDto createUser(UserRequestDto userRequestDto, boolean isAdmin);
 
-    UserJwtResponseDto login(UserRequestDto userRequestDto);
+    UserJwtWithRefreshDto login(UserRequestDto userRequestDto);
 
     void logout(String accessToken, Long userId);
+
+    Map<String, Object> refreshAccessToken(String refreshToken);
 
     List<UserResponseDto> findUsers();
 
