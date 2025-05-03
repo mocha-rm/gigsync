@@ -3,6 +3,7 @@ package com.jhlab.gigsync.domain.user.service;
 import com.jhlab.gigsync.domain.user.dto.*;
 import com.jhlab.gigsync.domain.user.entity.User;
 import com.jhlab.gigsync.domain.user.repository.UserRepository;
+import com.jhlab.gigsync.domain.user.type.UserRole;
 import com.jhlab.gigsync.global.exception.CustomException;
 import com.jhlab.gigsync.global.exception.type.UserErrorCode;
 import com.jhlab.gigsync.global.security.utils.JwtUtil;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -131,11 +134,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponseDto> findUsers() {
-        List<User> all = userRepository.findAll();
-
-        return all.stream()
-                .map(UserResponseDto::toDto).toList();
+    public Page<UserResponseDto> findUsers(Pageable pageable) {
+        Page<User> users = userRepository.findUsers(UserRole.NORMAL, pageable);
+        return users.map(UserResponseDto::toDto);
     }
 
     @Override
