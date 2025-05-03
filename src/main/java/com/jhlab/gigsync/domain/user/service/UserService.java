@@ -2,6 +2,8 @@ package com.jhlab.gigsync.domain.user.service;
 
 import com.jhlab.gigsync.domain.user.dto.*;
 import com.jhlab.gigsync.domain.user.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +17,7 @@ public interface UserService {
 
     Map<String, Object> refreshAccessToken(String refreshToken);
 
-    List<UserResponseDto> findUsers();
+    Page<UserResponseDto> findUsers(Pageable pageable);
 
     UserResponseDto findUser(Long userId);
 

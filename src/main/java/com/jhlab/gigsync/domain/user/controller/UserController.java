@@ -7,6 +7,10 @@ import com.jhlab.gigsync.global.security.auth.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,8 +26,8 @@ public class UserController {
 
     @Operation(summary = "유저 다건 조회")
     @GetMapping
-    public ResponseEntity<List<UserResponseDto>> findUsers() {
-        return new ResponseEntity<>(userService.findUsers(), HttpStatus.OK);
+    public ResponseEntity<Page<UserResponseDto>> findUsers(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return new ResponseEntity<>(userService.findUsers(pageable), HttpStatus.OK);
     }
 
     @Operation(summary = "특정 유저 조회")
