@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -51,17 +52,14 @@ public class BoardServiceImpl implements BoardService {
 
         boardRepository.save(board);
 
-        List<String> fileUrls = null;
+        List<BoardFile> boardFiles = new ArrayList<>();
 
         if (files != null && !files.isEmpty()) {
-            List<BoardFile> uploadedFiles = fileService.uploadFiles(files, board);
-            boardFileRepository.saveAll(uploadedFiles);
-            fileUrls = uploadedFiles.stream()
-                    .map(BoardFile::getFileUrl)
-                    .toList();
+            boardFiles = fileService.uploadFiles(files, board);
+            boardFileRepository.saveAll(boardFiles);
         }
 
-        return BoardResponseDto.toDto(board, user, fileUrls);
+        return BoardResponseDto.toDto(board, user, boardFiles);
     }
 
     @Override
@@ -79,15 +77,15 @@ public class BoardServiceImpl implements BoardService {
         }
 
         Board board = getBoardFromDB(boardId);
-        List<String> fileUrls = board.getFiles().stream()
-                .map(BoardFile::getFileUrl)
-                .toList();
+
+        List<BoardFile> boardFiles = board.getFiles();
 
         Long redisViewCount = redisTemplate.opsForValue().increment(viewKey);
         long totalViewCount = board.getViewCount() + (redisViewCount != null ? redisViewCount - 1 : 0);
 
         board.setViewCount(totalViewCount);
-        BoardResponseDto dto = BoardResponseDto.toDto(board, board.getUser(), fileUrls);
+
+        BoardResponseDto dto = BoardResponseDto.toDto(board, board.getUser(), boardFiles);
 
         redisTemplate.opsForValue().set(boardDetailKey, dto, Duration.ofMinutes(10));
 

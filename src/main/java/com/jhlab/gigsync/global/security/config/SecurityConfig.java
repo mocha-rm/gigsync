@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -38,8 +39,11 @@ public class SecurityConfig {
             "/api/signup",
             "/api/signup/admin",
             "/api/login",
+            "/api/auth/refresh",
             "/api/boards",
             "/api/boards/*",
+            "/api/boards/*/comments",
+            "/api/boards/*/comments/*",
             "/ws/**",
             "/swagger-ui/**",
             "/v3/api-docs/**"
@@ -77,7 +81,7 @@ public class SecurityConfig {
         http.cors(cors -> cors.configurationSource(request -> {
             var config = new org.springframework.web.cors.CorsConfiguration();
             config.setAllowedOrigins(List.of("http://localhost:5173")); // 프론트 도메인 허용
-            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
             config.setAllowedHeaders(List.of("*"));
             config.setAllowCredentials(true);
             return config;
@@ -88,6 +92,12 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(WHITE_LIST).permitAll()
+                .requestMatchers(HttpMethod.POST, "api/boards/**").authenticated()
+                .requestMatchers(HttpMethod.PATCH, "api/boards/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "api/boards/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/boards/*/comments").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/boards/*/comments/*").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/boards/*/comments/*").authenticated()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
         );
