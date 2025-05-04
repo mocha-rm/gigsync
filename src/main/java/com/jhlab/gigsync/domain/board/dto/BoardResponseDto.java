@@ -3,12 +3,14 @@ package com.jhlab.gigsync.domain.board.dto;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jhlab.gigsync.domain.board.entity.Board;
+import com.jhlab.gigsync.domain.board.entity.BoardFile;
 import com.jhlab.gigsync.domain.board.type.BoardType;
 import com.jhlab.gigsync.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -20,7 +22,7 @@ public class BoardResponseDto {
     private final String text;
     private final BoardType boardType;
     private final long viewCount;
-    private final List<String> fileUrls;
+    private final List<BoardFileDto> files;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
@@ -34,7 +36,7 @@ public class BoardResponseDto {
             @JsonProperty("text") String text,
             @JsonProperty("boardType") BoardType boardType,
             @JsonProperty("viewCount") long viewCount,
-            @JsonProperty("fileUrls") List<String> fileUrls,
+            @JsonProperty("files") List<BoardFileDto> files,
             @JsonProperty("createdAt") LocalDateTime createdAt,
             @JsonProperty("modifiedAt") LocalDateTime modifiedAt
     ) {
@@ -46,12 +48,17 @@ public class BoardResponseDto {
         this.text = text;
         this.boardType = boardType;
         this.viewCount = viewCount;
-        this.fileUrls = fileUrls;
+        this.files = files;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
-    public static BoardResponseDto toDto(Board board, User user, List<String> fileUrls) {
+    public static BoardResponseDto toDto(Board board, User user, List<BoardFile> boardFiles) {
+        List<BoardFileDto> fileDtos = boardFiles != null ?
+                boardFiles.stream()
+                        .map(BoardFileDto::from)
+                        .toList(): new ArrayList<>();
+
         return new BoardResponseDto(
                 board.getId(),
                 user.getId(),
@@ -60,7 +67,7 @@ public class BoardResponseDto {
                 board.getText(),
                 board.getBoardType(),
                 board.getViewCount(),
-                fileUrls,
+                fileDtos,
                 board.getCreatedAt(),
                 board.getModifiedAt()
         );
