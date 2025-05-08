@@ -34,7 +34,7 @@ spring:
       database: gigsync-chat
       authentication-database: ${MONGO_AUTH}
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_HOST}:9092
     consumer:
       group-id: chat-group
       auto-offset-reset: earliest

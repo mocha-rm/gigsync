@@ -53,6 +53,7 @@ jobs:
 
       - name: SSH into EC2 and deploy
         env:
+          KAFKA_HOST: ${{ secrets.KAFKA_HOST }}
           MONGO_DATABASE: ${{ secrets.MONGO_DATABASE }}
           MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}
           MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
@@ -80,6 +81,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.EC2_HOST }} << EOF
             cd /home/ubuntu
           
+            echo "KAFKA_HOST=${KAFKA_HOST}" > .env
             echo "MONGO_DATABASE=${MONGO_DATABASE}" > .env
             echo "MONGO_USERNAME=${MONGO_USERNAME}" >> .env
             echo "MONGO_PASSWORD=${MONGO_PASSWORD}" >> .env
