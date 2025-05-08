@@ -29,7 +29,7 @@ jobs:
 
       - name: SSH into EC2 and deploy
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
             cd /home/ubuntu
 
             echo "MONGO_DATABASE=${{ secrets.MONGO_DATABASE }}" > .env
