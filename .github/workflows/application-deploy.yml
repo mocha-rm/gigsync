@@ -32,29 +32,57 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
             cd /home/ubuntu
 
-            echo "MONGO_DATABASE=${{ secrets.MONGO_DATABASE }}" > .env
-            echo "MONGO_USERNAME=${{ secrets.MONGO_USERNAME }}" >> .env
-            echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env
-            echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
-            echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
-            echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
-            echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
-            echo "DB_URL=${{ secrets.DB_URL }}" >> .env
-            echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-            echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
-            echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
-            echo "JWT_ACCESS_EXP=${{ secrets.JWT_ACCESS_EXP }}" >> .env
-            echo "JWT_REFRESH_EXP=${{ secrets.JWT_REFRESH_EXP }}" >> .env
-            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-            echo "MONGO_AUTH=${{ secrets.MONGO_AUTH }}" >> .env
-            echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> .env
-            echo "AWS_ACCESS=${{ secrets.AWS_ACCESS }}" >> .env
-            echo "AWS_SECRET=${{ secrets.AWS_SECRET }}" >> .env
-            echo "S3_BUCKET=${{ secrets.S3_BUCKET }}" >> .env
-            echo "S3_REGION=${{ secrets.S3_REGION }}" >> .env
+            cat > .env <<EOT
+MONGO_DATABASE=${MONGO_DATABASE}
+MONGO_USERNAME=${MONGO_USERNAME}
+MONGO_PASSWORD=${MONGO_PASSWORD}
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+MYSQL_DATABASE=${MYSQL_DATABASE}
+MYSQL_USER=${MYSQL_USER}
+MYSQL_PASSWORD=${MYSQL_PASSWORD}
+DB_URL=${DB_URL}
+DB_USER=${DB_USER}
+DB_PASSWORD=${DB_PASSWORD}
+REDIS_HOST=${REDIS_HOST}
+REDIS_PASSWORD=${REDIS_PASSWORD}
+JWT_ACCESS_EXP=${JWT_ACCESS_EXP}
+JWT_REFRESH_EXP=${JWT_REFRESH_EXP}
+JWT_SECRET=${JWT_SECRET}
+MONGO_AUTH=${MONGO_AUTH}
+MONGO_HOST=${MONGO_HOST}
+AWS_ACCESS=${AWS_ACCESS}
+AWS_SECRET=${AWS_SECRET}
+S3_BUCKET=${S3_BUCKET}
+S3_REGION=${S3_REGION}
+DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
+DOCKERHUB_IMAGE_TAG_NAME=${DOCKERHUB_IMAGE_TAG_NAME}
+EOT
 
             docker compose down
             docker compose pull
             docker compose up -d --build
           EOF
+        env:
+          MONGO_DATABASE: ${{ secrets.MONGO_DATABASE }}
+          MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}
+          MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          JWT_ACCESS_EXP: ${{ secrets.JWT_ACCESS_EXP }}
+          JWT_REFRESH_EXP: ${{ secrets.JWT_REFRESH_EXP }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MONGO_AUTH: ${{ secrets.MONGO_AUTH }}
+          MONGO_HOST: ${{ secrets.MONGO_HOST }}
+          AWS_ACCESS: ${{ secrets.AWS_ACCESS }}
+          AWS_SECRET: ${{ secrets.AWS_SECRET }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          S3_REGION: ${{ secrets.S3_REGION }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_IMAGE_TAG_NAME: ${{ secrets.DOCKERHUB_IMAGE_TAG_NAME }}
