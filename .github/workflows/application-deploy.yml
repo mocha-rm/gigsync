@@ -28,11 +28,35 @@ jobs:
           PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
 
       - name: SSH into EC2 and deploy
+        env:
+          MONGO_DATABASE: ${{ secrets.MONGO_DATABASE }}
+          MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}
+          MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          JWT_ACCESS_EXP: ${{ secrets.JWT_ACCESS_EXP }}
+          JWT_REFRESH_EXP: ${{ secrets.JWT_REFRESH_EXP }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MONGO_AUTH: ${{ secrets.MONGO_AUTH }}
+          MONGO_HOST: ${{ secrets.MONGO_HOST }}
+          AWS_ACCESS: ${{ secrets.AWS_ACCESS }}
+          AWS_SECRET: ${{ secrets.AWS_SECRET }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          S3_REGION: ${{ secrets.S3_REGION }}
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          DOCKERHUB_IMAGE_TAG_NAME: ${{ vars.DOCKERHUB_IMAGE_TAG_NAME }}
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
             cd /home/ubuntu
           
-            echo "MONGO_DATABASE=${MONGO_DATABASE}" >> .env
+            echo "MONGO_DATABASE=${MONGO_DATABASE}" > .env
             echo "MONGO_USERNAME=${MONGO_USERNAME}" >> .env
             echo "MONGO_PASSWORD=${MONGO_PASSWORD}" >> .env
             echo "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" >> .env
