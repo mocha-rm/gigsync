@@ -1,0 +1,58 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - develop
+      - CICD
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Copy files to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no docker-compose.yml ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: SSH into EC2 and deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+            cd /home/ec2-user
+
+            echo "MONGO_DATABASE=${{ secrets.MONGO_DATABASE }}" > .env
+            echo "MONGO_USERNAME=${{ secrets.MONGO_USERNAME }}" >> .env
+            echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env
+            echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
+            echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
+            echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
+            echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+            echo "DB_URL=${{ secrets.DB_URL }}" >> .env
+            echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
+            echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
+            echo "JWT_ACCESS_EXP=${{ secrets.JWT_ACCESS_EXP }}" >> .env
+            echo "JWT_REFRESH_EXP=${{ secrets.JWT_REFRESH_EXP }}" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "MONGO_AUTH=${{ secrets.MONGO_AUTH }}" >> .env
+            echo "MONGO_HOST=${{ secrets.MONGO_HOST }}" >> .env
+            echo "AWS_ACCESS=${{ secrets.AWS_ACCESS }}" >> .env
+            echo "AWS_SECRET=${{ secrets.AWS_SECRET }}" >> .env
+            echo "S3_BUCKET=${{ secrets.S3_BUCKET }}" >> .env
+            echo "S3_REGION=${{ secrets.S3_REGION }}" >> .env
+
+            docker compose down
+            docker compose pull
+            docker compose up -d --build
+          EOF
