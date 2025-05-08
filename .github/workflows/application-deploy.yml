@@ -53,7 +53,7 @@ jobs:
           DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
           DOCKERHUB_IMAGE_TAG_NAME: ${{ vars.DOCKERHUB_IMAGE_TAG_NAME }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.EC2_HOST }} << EOF
             cd /home/ubuntu
           
             echo "MONGO_DATABASE=${MONGO_DATABASE}" > .env
@@ -79,6 +79,10 @@ jobs:
             echo "S3_REGION=${S3_REGION}" >> .env
             echo "DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}" >> .env
             echo "DOCKERHUB_IMAGE_TAG_NAME=${DOCKERHUB_IMAGE_TAG_NAME}" >> .env
+          
+            echo "환경 변수 확인:"
+            cat .env | grep DOCKERHUB
+            cat docker-compose.yml
 
             docker compose down
             docker compose pull
