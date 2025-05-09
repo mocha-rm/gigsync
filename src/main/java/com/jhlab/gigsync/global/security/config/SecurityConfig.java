@@ -80,7 +80,7 @@ public class SecurityConfig {
 
         http.cors(cors -> cors.configurationSource(request -> {
             var config = new org.springframework.web.cors.CorsConfiguration();
-            config.setAllowedOrigins(List.of("http://localhost:5173")); // 프론트 도메인 허용
+            config.setAllowedOrigins(List.of("http://ec2-3-39-233-166.ap-northeast-2.compute.amazonaws.com"));
             config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
             config.setAllowedHeaders(List.of("*"));
             config.setAllowCredentials(true);
