@@ -80,7 +80,12 @@ public class SecurityConfig {
 
         http.cors(cors -> cors.configurationSource(request -> {
             var config = new org.springframework.web.cors.CorsConfiguration();
-            config.setAllowedOrigins(List.of("http://ec2-3-39-233-166.ap-northeast-2.compute.amazonaws.com"));
+            config.setAllowedOrigins(List.of
+                    (
+                            "http://ec2-3-39-233-166.ap-northeast-2.compute.amazonaws.com",
+                            "http://localhost:5173"
+                    )
+            );
             config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
             config.setAllowedHeaders(List.of("*"));
             config.setAllowCredentials(true);
@@ -92,9 +97,9 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(WHITE_LIST).permitAll()
-                .requestMatchers(HttpMethod.POST, "api/boards/**").authenticated()
-                .requestMatchers(HttpMethod.PATCH, "api/boards/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "api/boards/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/boards/**").authenticated()
+                .requestMatchers(HttpMethod.PATCH, "/api/boards/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/boards/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/boards/*/comments").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/boards/*/comments/*").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/boards/*/comments/*").authenticated()

@@ -3,7 +3,7 @@ package com.jhlab.gigsync.domain.user.dto;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 @Getter
 public class UserJwtResponseDto {
@@ -12,10 +12,10 @@ public class UserJwtResponseDto {
     private final String nickName;
     private final String role;
     private final String accessToken;
-    private final Date exp;
+    private final ZonedDateTime exp;
 
     @Builder
-    public UserJwtResponseDto(Long id, String email, String nickName, String role, String accessToken, Date exp) {
+    public UserJwtResponseDto(Long id, String email, String nickName, String role, String accessToken, ZonedDateTime exp) {
         this.id = id;
         this.email = email;
         this.nickName = nickName;

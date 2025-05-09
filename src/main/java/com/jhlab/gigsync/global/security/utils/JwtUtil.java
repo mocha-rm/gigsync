@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.time.Duration;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
@@ -59,7 +60,7 @@ public class JwtUtil {
         claims.put("nickName", user.getNickName());
         claims.put("role", user.getRole());
 
-        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
         ZonedDateTime tokenExpiredTime = now.plus(Duration.ofMillis(expireTime));
 
         return Jwts.builder()
