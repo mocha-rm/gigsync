@@ -109,6 +109,7 @@ jobs:
             cat docker-compose.yml
 
             docker compose down
+            docker system prune -af --volumes
             docker compose pull
             docker compose up -d --build  
           EOF
