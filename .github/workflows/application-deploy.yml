@@ -107,9 +107,9 @@ jobs:
             echo "환경 변수 확인:"
             cat .env | grep DOCKERHUB
             cat docker-compose.yml
-
-            docker compose down
+          
+            docker compose down --remove-orphans
             docker system prune -af --volumes
             docker compose pull
-            docker compose up -d --build  
+            docker compose up -d --force-recreate  
           EOF
