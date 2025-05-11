@@ -68,6 +68,7 @@ jobs:
           JWT_ACCESS_EXP: ${{ secrets.JWT_ACCESS_EXP }}
           JWT_REFRESH_EXP: ${{ secrets.JWT_REFRESH_EXP }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MONGO_USER: ${{ secrets.MONGO_USER }}
           MONGO_AUTH: ${{ secrets.MONGO_AUTH }}
           MONGO_HOST: ${{ secrets.MONGO_HOST }}
           AWS_ACCESS: ${{ secrets.AWS_ACCESS }}
@@ -95,6 +96,7 @@ jobs:
             echo "JWT_ACCESS_EXP=${JWT_ACCESS_EXP}" >> .env
             echo "JWT_REFRESH_EXP=${JWT_REFRESH_EXP}" >> .env
             echo "JWT_SECRET=${JWT_SECRET}" >> .env
+            echo "MONGO_USER=${MONGO_USER}" >> .env
             echo "MONGO_AUTH=${MONGO_AUTH}" >> .env
             echo "MONGO_HOST=${MONGO_HOST}" >> .env
             echo "AWS_ACCESS=${AWS_ACCESS}" >> .env
