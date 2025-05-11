@@ -82,7 +82,7 @@ public class SecurityConfig {
             var config = new org.springframework.web.cors.CorsConfiguration();
             config.setAllowedOrigins(List.of
                     (
-                            "http://ec2-54-180-83-28.ap-northeast-2.compute.amazonaws.com",
+                            "http://ec2-15-164-163-181.ap-northeast-2.compute.amazonaws.com",
                             "http://localhost:5173"
                     )
             );
