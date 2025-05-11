@@ -55,7 +55,9 @@ services:
       - redis_data:/data
 
   app:
+    container_name: GigSync-SpringBoot
     image: ${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE_TAG_NAME}:latest
+    restart: always
     depends_on:
       - kafka
       - mysql
