@@ -23,7 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
                 .nickName(findUser.getNickName())
                 .role(findUser.getRole().toString())
                 .accessToken(accessToken)
-                .exp(claims.getExpiration())
+                .exp(claims.getExpiration().toInstant().atZone(ZoneId.of("UTC")))
                 .build();
 
         return new UserJwtWithRefreshDto(userJwtResponseDto, refreshToken);
