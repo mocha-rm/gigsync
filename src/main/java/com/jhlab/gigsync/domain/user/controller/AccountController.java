@@ -1,9 +1,9 @@
 package com.jhlab.gigsync.domain.user.controller;
 
-import com.jhlab.gigsync.domain.user.dto.UserJwtResponseDto;
-import com.jhlab.gigsync.domain.user.dto.UserJwtWithRefreshDto;
-import com.jhlab.gigsync.domain.user.dto.UserRequestDto;
-import com.jhlab.gigsync.domain.user.dto.UserResponseDto;
+import com.jhlab.gigsync.domain.user.dto.*;
+import com.jhlab.gigsync.domain.user.dto.auth.FindEmailRequestDto;
+import com.jhlab.gigsync.domain.user.dto.auth.FindEmailResponseDto;
+import com.jhlab.gigsync.domain.user.dto.auth.ResetPasswordRequestDto;
 import com.jhlab.gigsync.domain.user.service.UserService;
 import com.jhlab.gigsync.global.security.auth.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,14 +27,14 @@ public class AccountController {
 
     @Operation(summary = "관리자 계정 생성")
     @PostMapping("/signup/admin")
-    public ResponseEntity<UserResponseDto> adminSignup(@RequestBody UserRequestDto userRequestDto) {
-        return new ResponseEntity<>(userService.createUser(userRequestDto, true), HttpStatus.CREATED);
+    public ResponseEntity<UserResponseDto> adminSignup(@RequestBody SignUpRequestDto requestDto) {
+        return new ResponseEntity<>(userService.createUser(requestDto, true), HttpStatus.CREATED);
     }
 
     @Operation(summary = "계정 생성")
     @PostMapping("/signup")
-    public ResponseEntity<UserResponseDto> signUp(@Valid @RequestBody UserRequestDto userRequestDto) {
-        return new ResponseEntity<>(userService.createUser(userRequestDto, false), HttpStatus.CREATED);
+    public ResponseEntity<UserResponseDto> signUp(@Valid @RequestBody SignUpRequestDto requestDto) {
+        return new ResponseEntity<>(userService.createUser(requestDto, false), HttpStatus.CREATED);
     }
 
     @Operation(summary = "로그인")
@@ -67,5 +67,18 @@ public class AccountController {
     @PostMapping("/auth/refresh")
     public ResponseEntity<Map<String, Object>> refreshAccessToken(@CookieValue("refreshToken") String refreshToken) {
         return new ResponseEntity<>(userService.refreshAccessToken(refreshToken), HttpStatus.OK);
+    }
+
+    @Operation(summary = "가입한 이메일 찾기")
+    @GetMapping("/auth/findEmail")
+    public ResponseEntity<FindEmailResponseDto> findEmail(@RequestBody FindEmailRequestDto findEmailRequestDto) {
+        return new ResponseEntity<>(userService.findEmail(findEmailRequestDto), HttpStatus.OK);
+    }
+
+    @Operation(summary = "비밀번호 재설정")
+    @PostMapping("/auth/resetPassword")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequestDto resetPasswordRequestDto) {
+        userService.resetPassword(resetPasswordRequestDto);
+        return new ResponseEntity<>("비밀번호가 재설정되었습니다.", HttpStatus.OK);
     }
 }

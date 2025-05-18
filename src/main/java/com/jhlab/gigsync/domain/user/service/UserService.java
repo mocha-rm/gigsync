@@ -1,15 +1,17 @@
 package com.jhlab.gigsync.domain.user.service;
 
 import com.jhlab.gigsync.domain.user.dto.*;
+import com.jhlab.gigsync.domain.user.dto.auth.FindEmailRequestDto;
+import com.jhlab.gigsync.domain.user.dto.auth.FindEmailResponseDto;
+import com.jhlab.gigsync.domain.user.dto.auth.ResetPasswordRequestDto;
 import com.jhlab.gigsync.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Map;
 
 public interface UserService {
-    UserResponseDto createUser(UserRequestDto userRequestDto, boolean isAdmin);
+    UserResponseDto createUser(SignUpRequestDto requestDto, boolean isAdmin);
 
     UserJwtWithRefreshDto login(UserRequestDto userRequestDto);
 
@@ -32,4 +34,8 @@ public interface UserService {
     User getUserFromDB(Long userId);
 
     User getUserFromDB(String email);
+
+    FindEmailResponseDto findEmail(FindEmailRequestDto findEmailRequestDto);
+
+    void resetPassword(ResetPasswordRequestDto resetPasswordRequestDto);
 }

@@ -1,6 +1,5 @@
 package com.jhlab.gigsync.domain.user.repository;
 
-import com.jhlab.gigsync.domain.user.dto.UserResponseDto;
 import com.jhlab.gigsync.domain.user.entity.User;
 import com.jhlab.gigsync.domain.user.type.UserRole;
 import org.springframework.data.domain.Page;
@@ -16,4 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.role = :role")
     Page<User> findUsers(@Param("role") UserRole role, Pageable pageable);
+
+    @Query("SELECT u.email FROM User u WHERE u.phoneNumber = :phoneNumber")
+    String findEmailByPhoneNumber(@Param("phoneNumber") String phoneNumber);
 }

@@ -36,9 +36,12 @@ public class SecurityConfig {
 
     public static final String[] WHITE_LIST = {
             "/",
+            "/api/verifyEmail",
             "/api/signup",
             "/api/signup/admin",
             "/api/login",
+            "/api/auth/findEmail",
+            "/api/auth/resetPassword",
             "/api/auth/refresh",
             "/api/boards",
             "/api/boards/*",
