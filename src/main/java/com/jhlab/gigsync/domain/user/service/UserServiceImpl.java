@@ -1,9 +1,13 @@
 package com.jhlab.gigsync.domain.user.service;
 
 import com.jhlab.gigsync.domain.user.dto.*;
+import com.jhlab.gigsync.domain.user.dto.auth.FindEmailRequestDto;
+import com.jhlab.gigsync.domain.user.dto.auth.FindEmailResponseDto;
+import com.jhlab.gigsync.domain.user.dto.auth.ResetPasswordRequestDto;
 import com.jhlab.gigsync.domain.user.entity.User;
 import com.jhlab.gigsync.domain.user.repository.UserRepository;
 import com.jhlab.gigsync.domain.user.type.UserRole;
+import com.jhlab.gigsync.global.common.service.EmailVerificationService;
 import com.jhlab.gigsync.global.exception.CustomException;
 import com.jhlab.gigsync.global.exception.type.UserErrorCode;
 import com.jhlab.gigsync.global.security.utils.JwtUtil;
@@ -36,18 +40,26 @@ public class UserServiceImpl implements UserService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final EmailVerificationService emailVerificationService;
+
 
     @Override
     @Transactional
-    public UserResponseDto createUser(UserRequestDto userRequestDto, boolean isAdmin) {
-        if (userRepository.findByEmail(userRequestDto.getEmail()).isPresent()) {
+    public UserResponseDto createUser(SignUpRequestDto requestDto, boolean isAdmin) {
+        if (!emailVerificationService.verifyCode(requestDto.getEmail(), requestDto.getVerificationCode())) {
+            throw new CustomException(UserErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
+        if (userRepository.findByEmail(requestDto.getEmail()).isPresent()) {
             throw new CustomException(UserErrorCode.EMAIL_DUPLICATED);
         }
 
         User user = User.builder()
-                .email(userRequestDto.getEmail())
-                .password(passwordEncoder.encode(userRequestDto.getPassword()))
-                .nickName(userRequestDto.getNickName())
+                .email(requestDto.getEmail())
+                .password(passwordEncoder.encode(requestDto.getPassword()))
+                .nickName(requestDto.getNickName())
+                .phoneNumber(requestDto.getPhoneNumber())
+                .isEmailVerified(true)
                 .build();
 
         if (isAdmin) {
@@ -55,6 +67,7 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.save(user);
+        emailVerificationService.removeCode(requestDto.getEmail());
 
         return UserResponseDto.toDto(user);
     }
@@ -199,6 +212,25 @@ public class UserServiceImpl implements UserService {
     public User getUserFromDB(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    @Override
+    public FindEmailResponseDto findEmail(FindEmailRequestDto findEmailRequestDto) {
+        String email = userRepository.findEmailByPhoneNumber(findEmailRequestDto.getPhoneNumber());
+        return new FindEmailResponseDto(email);
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(ResetPasswordRequestDto resetPasswordRequestDto) {
+        if (!emailVerificationService.verifyCode(resetPasswordRequestDto.getEmail(),
+                resetPasswordRequestDto.getVerificationCode())) {
+            throw new CustomException(UserErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
+        User user = getUserFromDB(resetPasswordRequestDto.getEmail());
+        user.updatePassword(passwordEncoder.encode(resetPasswordRequestDto.getPassword()));
+        userRepository.save(user);
     }
 
     private void validateRefreshToken(String refreshToken, Long userId) {

@@ -26,11 +26,16 @@ public class User extends BaseEntity {
     @Column(length = 50)
     private String email;
 
+    private boolean isEmailVerified;
+
     @Column(length = 100)
     private String password;
 
     @Column(length = 15)
     private String nickName;
+
+    @Column(length = 20)
+    private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
@@ -42,10 +47,12 @@ public class User extends BaseEntity {
     private List<Comment> comments = new ArrayList<>();
 
     @Builder
-    public User(String email, String password, String nickName) {
+    public User(String email, String password, String nickName, String phoneNumber, boolean isEmailVerified) {
         this.email = email;
         this.password = password;
         this.nickName = nickName;
+        this.phoneNumber = phoneNumber;
+        this.isEmailVerified = isEmailVerified;
         this.role = UserRole.NORMAL;
     }
 

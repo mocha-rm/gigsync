@@ -1,6 +1,18 @@
 spring:
   application:
     name: gigsync
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${SMTP_EMAIL}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    default-encoding: UTF-8
   servlet:
     multipart:
       max-request-size: 500MB
