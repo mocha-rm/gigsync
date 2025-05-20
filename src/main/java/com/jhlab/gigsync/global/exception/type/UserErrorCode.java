@@ -17,7 +17,7 @@ public enum UserErrorCode implements ExceptionType {
     NEED_ADMIN_ROLE(HttpStatus.FORBIDDEN, "관리자 권한이 필요합니다."),
     USER_UNAUTHORIZED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
-    EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "이메일 인증이 완료되지 않았습니다.")
+    EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "이메일 인증번호가 맞지 않습니다.")
     ;
 
     private final HttpStatus httpStatus;

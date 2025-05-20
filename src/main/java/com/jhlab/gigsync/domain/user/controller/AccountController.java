@@ -70,7 +70,7 @@ public class AccountController {
     }
 
     @Operation(summary = "가입한 이메일 찾기")
-    @GetMapping("/auth/findEmail")
+    @PostMapping("/auth/findEmail")
     public ResponseEntity<FindEmailResponseDto> findEmail(@RequestBody FindEmailRequestDto findEmailRequestDto) {
         return new ResponseEntity<>(userService.findEmail(findEmailRequestDto), HttpStatus.OK);
     }
