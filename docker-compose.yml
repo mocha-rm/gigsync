@@ -82,6 +82,8 @@ services:
       AWS_SECRET: ${AWS_SECRET}
       S3_BUCKET: ${S3_BUCKET}
       S3_REGION: ${S3_REGION}
+      SMTP_EMAIL: ${SMTP_EMAIL}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
 
 volumes:
   kafka_data:
